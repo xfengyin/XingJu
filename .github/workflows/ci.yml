@@ -2,16 +2,25 @@ name: XingJu CI/CD
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - develop
+      - 'release/*'
     tags:
       - 'v*'
   pull_request:
-    branches: [main, master]
+    branches:
+      - main
+      - develop
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
 
 jobs:
-  # Frontend Build
-  frontend-build:
-    name: Frontend Build
+  # ========== 代码质量检查 ==========
+  lint:
+    name: Lint & Format
     runs-on: ubuntu-latest
     
     steps:
@@ -21,81 +30,35 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install dependencies
-        working-directory: frontend
-        run: npm ci
-
-      - name: Lint
-        working-directory: frontend
-        run: npm run lint || echo "Lint step skipped if not configured"
-
-      - name: Build
-        working-directory: frontend
-        run: npm run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist
-          retention-days: 7
-
-  # Python Backend
-  python-backend:
-    name: Python Backend
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: backend/requirements.txt
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        working-directory: backend
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          npm ci
+          pip install flake8 black isort mypy
 
-      - name: Syntax check
+      - name: Frontend Lint
+        run: npm run lint
+
+      - name: Python Lint
         working-directory: backend
         run: |
-          pip install flake8
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          black --check .
+          isort --check-only .
 
-      - name: Run tests
-        working-directory: backend
-        run: |
-          pip install pytest pytest-cov
-          pytest --cov=. --cov-report=xml || echo "Tests skipped if not configured"
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./backend/coverage.xml
-          flags: backend
-          fail_ci_if_error: false
-
-  # Electron Build (on tag)
-  electron-build:
-    name: Build Electron App
-    runs-on: ${{ matrix.os }}
-    needs: [frontend-build, python-backend]
-    if: startsWith(github.ref, 'refs/tags/v')
-    
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+  # ========== 测试 ==========
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: lint
     
     steps:
       - name: Checkout code
@@ -104,87 +67,381 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-cov pytest-asyncio
+
+      - name: Frontend Tests
+        run: npm run test:unit -- --coverage
+
+      - name: Python Tests
+        working-directory: backend
+        run: pytest --cov=. --cov-report=xml --cov-report=html
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info,./backend/coverage.xml
+          fail_ci_if_error: false
+
+  # ========== 构建开源版 ==========
+  build-opensource:
+    name: Build Open Source
+    runs-on: ${{ matrix.os }}
+    needs: test
+    if: github.event_name == 'push' || startsWith(github.ref, 'refs/tags/v')
+    
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+          - os: macos-latest
+            platform: macos
+            arch: x64
+          - os: windows-latest
+            platform: windows
+            arch: x64
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Get version
+        id: get_version
+        shell: bash
+        run: |
+          VERSION=$(echo ${GITHUB_REF#refs/tags/} | sed 's/^v//')
+          if [ "$VERSION" = "${GITHUB_REF#refs/tags/}" ]; then
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "edition=opensource" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          pip install -r backend/requirements.txt
+          pip install pyinstaller
+
+      - name: Build Python Backend
+        working-directory: backend
+        shell: bash
+        run: |
+          pyinstaller \
+            --name "xingju-backend" \
+            --onefile \
+            --windowed \
+            --add-data "config:config" \
+            --distpath ../electron/bin \
+            main.py
 
       - name: Build Frontend
-        working-directory: frontend
         run: npm run build
 
-      - name: Build Electron App
-        run: npm run electron:build
+      - name: Build Electron (Linux)
+        if: matrix.platform == 'linux'
+        run: npm run electron:build:linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload release artifacts (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Build Electron (macOS)
+        if: matrix.platform == 'macos'
+        run: npm run electron:build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.MAC_CERT }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+
+      - name: Build Electron (Windows)
+        if: matrix.platform == 'windows'
+        run: npm run electron:build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.WIN_CERT }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CERT_PASSWORD }}
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: xingju-linux
+          name: xingju-opensource-${{ matrix.platform }}
           path: |
             dist/*.AppImage
             dist/*.deb
-            dist/*.rpm
-          retention-days: 30
-
-      - name: Upload release artifacts (macOS)
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: xingju-macos
-          path: |
             dist/*.dmg
-            dist/*.zip
-          retention-days: 30
-
-      - name: Upload release artifacts (Windows)
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: xingju-windows
-          path: |
             dist/*.exe
             dist/*.msi
-          retention-days: 30
+            dist/*.zip
+          retention-days: 7
 
-  # Create Release (on tag)
-  create-release:
-    name: Create GitHub Release
+  # ========== 构建发行版 ==========
+  build-enterprise:
+    name: Build Enterprise
+    runs-on: ${{ matrix.os }}
+    needs: test
+    if: (github.event_name == 'push' && contains(github.ref, 'enterprise')) || startsWith(github.ref, 'refs/tags/v')
+    
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: macos-latest
+            platform: macos
+          - os: windows-latest
+            platform: windows
+    
+    steps:
+      - name: Checkout code (with enterprise modules)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ENTERPRISE_TOKEN }}
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Get version
+        id: get_version
+        shell: bash
+        run: |
+          VERSION=$(echo ${GITHUB_REF#refs/tags/} | sed 's/^v//' | sed 's/-enterprise//')
+          if [ "$VERSION" = "${GITHUB_REF#refs/tags/}" ]; then
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+          BUILD_NUM=$(git rev-list --count HEAD)
+          echo "version=${VERSION}-enterprise.${BUILD_NUM}" >> $GITHUB_OUTPUT
+          echo "edition=enterprise" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          pip install -r backend/requirements.txt
+          pip install -r backend/requirements-enterprise.txt
+          pip install pyinstaller
+
+      - name: Build Enterprise Backend
+        working-directory: backend
+        shell: bash
+        run: |
+          pyinstaller \
+            --name "xingju-backend-enterprise" \
+            --onefile \
+            --windowed \
+            --add-data "config:config" \
+            --add-data "enterprise:enterprise" \
+            --distpath ../electron/bin \
+            main.py
+
+      - name: Build Frontend
+        run: npm run build:enterprise
+
+      - name: Build Electron
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform }}" = "linux" ]; then
+            npm run electron:build:linux
+          elif [ "${{ matrix.platform }}" = "macos" ]; then
+            npm run electron:build:mac
+          else
+            npm run electron:build:win
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Rename artifacts
+        shell: bash
+        run: |
+          mkdir -p dist-enterprise
+          for f in dist/*; do
+            name=$(basename "$f")
+            # 添加 enterprise 标识
+            newname=$(echo "$name" | sed 's/XingJu/XingJu-Enterprise/')
+            cp "$f" "dist-enterprise/$newname"
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: xingju-enterprise-${{ matrix.platform }}
+          path: dist-enterprise/*
+          retention-days: 7
+
+  # ========== Docker 构建 ==========
+  docker:
+    name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [electron-build]
+    needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: xfengyin/xingju
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ========== 创建 Release ==========
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-opensource, build-enterprise]
     if: startsWith(github.ref, 'refs/tags/v')
     
     steps:
-      - name: Download Linux artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: xingju-linux
-          path: ./release-linux
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Download macOS artifacts
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: xingju-macos
-          path: ./release-macos
+          path: ./artifacts
 
-      - name: Download Windows artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: xingju-windows
-          path: ./release-windows
+      - name: Prepare release files
+        run: |
+          mkdir -p release
+          find ./artifacts -type f -exec cp {} release/ \;
+          
+          # 生成 checksums
+          cd release
+          sha256sum * > checksums.txt
+
+      - name: Determine release type
+        id: release_type
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          if [[ "$TAG" =~ -rc\. ]] || [[ "$TAG" =~ -beta\. ]] || [[ "$TAG" =~ -alpha\. ]]; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            ./release-linux/*
-            ./release-macos/*
-            ./release-windows/*
+          files: release/*
+          prerelease: ${{ steps.release_type.outputs.prerelease }}
           generate_release_notes: true
-          draft: false
-          prerelease: false
+          body: |
+            ## XingJu ${{ github.ref_name }}
+            
+            ### 开源版 (Open Source)
+            免费使用，社区支持
+            
+            ### 发行版 (Enterprise)
+            商业授权，企业功能
+            
+            ### 下载
+            选择适合您平台的安装包：
+            - Linux: `.AppImage`, `.deb`
+            - macOS: `.dmg`
+            - Windows: `.exe`, `.msi`
+            
+            ### 校验
+            使用 `checksums.txt` 验证文件完整性
+            
+            ### 文档
+            - [安装指南](https://docs.xingju.app/install)
+            - [更新日志](./CHANGELOG.md)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ========== 部署到开发环境 ==========
+  deploy-dev:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    needs: [docker]
+    if: github.ref == 'refs/heads/develop'
+    environment: development
+    
+    steps:
+      - name: Deploy to dev
+        run: |
+          echo "Deploying to development..."
+          # 实际部署命令
+
+  # ========== 部署到预发布环境 ==========
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-opensource, build-enterprise]
+    if: startsWith(github.ref, 'refs/heads/release/')
+    environment: staging
+    
+    steps:
+      - name: Deploy to staging
+        run: |
+          echo "Deploying to staging..."
+          # 实际部署命令
+
+  # ========== 部署到生产环境 ==========
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [create-release]
+    if: github.ref == 'refs/heads/main' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-rc') && !contains(github.ref, '-beta') && !contains(github.ref, '-alpha')
+    environment: production
+    
+    steps:
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production..."
+          # 实际部署命令
