@@ -1,104 +1,145 @@
-# 星聚 (XingJu) - Windows版多元内容聚合工具
+# XingJu (星聚) - 多元内容聚合工具
 
-> 🌟 一站式聚合音乐、视频、小说、漫画的Windows桌面应用
+<div align="center">
 
-## 📋 项目信息
+![Version](https://img.shields.io/badge/version-v2.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
 
-- **项目名称**: 星聚 (XingJu)
-- **版本**: v1.0.0
-- **平台**: Windows 10/11
-- **技术栈**: Electron 25+ + Vue3 + TypeScript + Node.js 16+ + Python 3.9+ + SQLite 3+
+**一站式多媒体内容聚合与管理平台**
 
-## 🎯 核心功能
+[功能特性](#-功能特性) • [快速开始](#-快速开始) • [安装指南](#-安装指南) • [文档](#-文档) • [贡献](#-贡献)
 
-### 内容聚合
-- 🎵 **音乐聚合** - 多平台音乐搜索、在线播放、本地缓存
-- 🎬 **视频聚合** - 视频源整合、在线观看、下载管理
-- 📚 **小说聚合** - 多源小说搜索、在线阅读、书架管理
-- 🎨 **漫画聚合** - 漫画源整合、图片预加载、阅读记录
+</div>
 
-### 系统功能
-- 🔍 **全局检索** - 跨内容类型统一搜索
-- 💾 **本地缓存** - 智能缓存管理、离线访问
-- 🔔 **系统托盘** - 常驻后台、快捷操作
-- ⚙️ **个性化设置** - 主题、快捷键、下载路径
-- 🔒 **合规安全** - 内容过滤、版权提示、安全更新
+## 🌟 功能特性
 
-## 🏗️ 项目架构
-
-```
-XingJu/
-├── src/
-│   ├── main/              # Electron 主进程
-│   │   ├── index.ts       # 入口文件
-│   │   ├── window.ts      # 窗口管理
-│   │   ├── tray.ts        # 系统托盘
-│   │   ├── menu.ts        # 应用菜单
-│   │   └── ipc/           # IPC通信处理
-│   ├── renderer/          # Vue3 渲染进程
-│   │   ├── components/    # 公共组件
-│   │   ├── views/         # 页面视图
-│   │   ├── stores/        # Pinia状态管理
-│   │   ├── api/           # API接口封装
-│   │   └── utils/         # 工具函数
-│   ├── python/            # Python后端服务
-│   │   ├── api/           # API路由
-│   │   ├── crawlers/      # 爬虫模块
-│   │   ├── models/        # 数据模型
-│   │   ├── services/      # 业务逻辑
-│   │   └── utils/         # 工具函数
-│   └── assets/            # 静态资源
-├── docs/                  # 项目文档
-├── tests/                 # 测试文件
-├── scripts/               # 构建脚本
-└── .github/workflows/     # CI/CD配置
-```
+- 🎵 **音乐聚合** - 支持多平台音乐源，智能推荐
+- 📺 **视频聚合** - 聚合主流视频平台，一键下载
+- 📚 **小说/漫画** - 在线阅读，自动更新
+- 🔍 **智能搜索** - 跨平台内容检索
+- 📥 **批量下载** - 支持批量下载，断点续传
+- 🎨 **跨平台** - Windows / macOS / Linux 全平台支持
 
 ## 🚀 快速开始
 
-### 环境要求
-- Windows 10/11
-- Node.js 16+
-- Python 3.9+
-- SQLite 3+
+### 前置要求
 
-### 安装依赖
+- Node.js >= 20.0
+- Python >= 3.11
+- npm >= 9.0
+
+### 安装
+
 ```bash
-# 安装 Node.js 依赖
+# 克隆仓库
+git clone https://github.com/xfengyin/XingJu.git
+cd XingJu
+
+# 安装依赖
 npm install
+pip install -r backend/requirements.txt
 
-# 安装 Python 依赖
-pip install -r requirements.txt
-```
-
-### 开发模式
-```bash
 # 启动开发服务器
 npm run dev
-
-# 启动 Python 服务
-python src/python/main.py
 ```
 
-### 构建打包
+### Docker 部署
+
 ```bash
-# Windows 打包
-npm run build:win
+# 拉取镜像
+docker pull xfengyin/xingju:latest
 
-# 便携版
-npm run build:win:portable
+# 运行容器
+docker run -d -p 3000:3000 xfengyin/xingju
 ```
 
-## 👥 开发团队
+## 📖 文档
 
-| 角色 | 职责 | 成员 |
-|------|------|------|
-| 技术总监 | 架构设计、代码审查 | TD-01 |
-| 前端开发 ×2 | Electron + Vue3 开发 | FE-01, FE-02 |
-| 后端开发 ×2 | Python + 爬虫开发 | BE-01, BE-02 |
-| 测试工程师 | 测试与质量保障 | QA-01 |
-| DevOps工程师 | CI/CD与发布 | DO-01 |
+- [安装指南](./docs/INSTALL.md)
+- [API 文档](./docs/API.md)
+- [配置说明](./docs/CONFIG.md)
+- [常见问题](./docs/FAQ.md)
+- [贡献指南](./CONTRIBUTING.md)
 
-## 📄 许可证
+## 🛠️ 技术栈
 
-MIT License
+### 前端
+- **框架**: Vue 3 + TypeScript
+- **UI 库**: Naive UI
+- **构建工具**: Vite
+- **桌面端**: Electron
+
+### 后端
+- **框架**: Python FastAPI
+- **爬虫**: requests + BeautifulSoup
+- **数据库**: SQLite
+
+## 📁 项目结构
+
+```
+XingJu/
+├── frontend/          # Vue3 前端
+│   ├── src/
+│   └── package.json
+├── backend/           # Python 后端
+│   ├── api/
+│   ├── crawler/
+│   └── requirements.txt
+├── electron/          # Electron 桌面端
+└── docs/             # 文档
+```
+
+## 🔧 开发
+
+```bash
+# 安装依赖
+npm install
+
+# 开发模式
+npm run dev
+
+# 构建
+npm run build
+
+# 测试
+npm run test
+```
+
+## 📄 开源协议
+
+本项目采用 [MIT License](LICENSE) 开源协议。
+
+## 🤝 贡献
+
+欢迎贡献代码、报告 Bug 或提出建议！
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'feat: Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建 Pull Request
+
+详见 [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## 💬 社区
+
+- [GitHub Discussions](https://github.com/xfengyin/XingJu/discussions)
+- [问题反馈](https://github.com/xfengyin/XingJu/issues)
+- [更新日志](CHANGELOG.md)
+
+## ⭐ Star History
+
+如果这个项目对你有帮助，请给个 Star 支持！
+
+## 📧 联系方式
+
+- 作者: 张可
+- Email: dev@xingju.app
+- GitHub: [@xfengyin](https://github.com/xfengyin)
+
+---
+
+<div align="center">
+  <sub>用 ❤️ 构建</sub>
+</div>
