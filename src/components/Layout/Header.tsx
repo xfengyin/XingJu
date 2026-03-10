@@ -1,6 +1,11 @@
 import React from 'react'
 
-export default function Header() {
+interface HeaderProps {
+  searchQuery: string
+  onSearchChange: (query: string) => void
+}
+
+export default function Header({ searchQuery, onSearchChange }: HeaderProps) {
   return (
     <header className="h-16 glass-panel m-4 mt-0 rounded-2xl flex items-center justify-between px-6">
       {/* 搜索框 */}
@@ -9,6 +14,8 @@ export default function Header() {
           <input
             type="text"
             placeholder="搜索音乐、视频、小说、漫画..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
             className="cyber-input w-full pl-12 pr-4 py-3"
           />
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl">
