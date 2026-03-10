@@ -1,20 +1,24 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useAppStore } from '../store'
 
 export default function Player() {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [progress, setProgress] = useState(30)
+  const { currentTrack, isPlaying, setIsPlaying, progress, setProgress } = useAppStore()
 
   return (
     <footer className="h-24 glass-panel m-4 mb-0 rounded-2xl flex items-center px-6 gap-6">
       {/* 封面 */}
       <div className="w-16 h-16 bg-cyber-panel rounded-xl flex items-center justify-center text-3xl">
-        🎵
+        {currentTrack?.cover || '🎵'}
       </div>
       
       {/* 歌曲信息 */}
       <div className="flex-1">
-        <div className="text-white font-medium">未播放</div>
-        <div className="text-sm text-cyber-gray-400">选择内容开始播放</div>
+        <div className="text-white font-medium">
+          {currentTrack?.title || '未播放'}
+        </div>
+        <div className="text-sm text-cyber-gray-400">
+          {currentTrack?.artist || '选择内容开始播放'}
+        </div>
       </div>
       
       {/* 播放控制 */}
@@ -36,13 +40,15 @@ export default function Player() {
       {/* 进度条 */}
       <div className="flex-1 flex items-center gap-3">
         <span className="text-sm text-cyber-gray-400">00:00</span>
-        <div className="flex-1 h-2 bg-cyber-panel rounded-full overflow-hidden">
+        <div className="flex-1 h-2 bg-cyber-panel rounded-full overflow-hidden cursor-pointer">
           <div 
             className="h-full bg-gradient-to-r from-neon-blue to-neon-purple transition-all"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
-        <span className="text-sm text-cyber-gray-400">04:30</span>
+        <span className="text-sm text-cyber-gray-400">
+          {currentTrack?.duration || '04:30'}
+        </span>
       </div>
       
       {/* 音量控制 */}
