@@ -31,13 +31,13 @@ jobs:
       
       - name: Install dependencies
         run: |
-          npm ci
+          npm install
           cd src-tauri
-          cargo fetch
+          cargo build --release
       
       - name: Build Windows
         run: |
-          npm run tauri build -- --ci
+          npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -74,7 +74,7 @@ jobs:
       
       - name: Build Linux
         run: |
-          npm run tauri build -- --ci
+          npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -106,7 +106,7 @@ jobs:
       
       - name: Build macOS
         run: |
-          npm run tauri build -- --ci
+          npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
