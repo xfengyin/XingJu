@@ -16,39 +16,39 @@ env:
 jobs:
   build-windows:
     runs-on: windows-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ env.RUST_VERSION }}
-      
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: package-lock.json
-      
+
       - name: Install dependencies
         run: |
           npm ci --include=dev
-      
+
       - name: Build Windows
         run: |
           npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Upload Windows MSI
         uses: actions/upload-artifact@v4
         with:
           name: windows-msi
           path: src-tauri/target/release/bundle/msi/**/*.msi
           if-no-files-found: ignore
-      
+
       - name: Upload Windows NSIS
         uses: actions/upload-artifact@v4
         with:
@@ -58,22 +58,22 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-22.04
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ env.RUST_VERSION }}
-      
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: package-lock.json
-      
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -84,24 +84,24 @@ jobs:
             librsvg2-dev \
             libxdo-dev \
             libssl-dev
-      
+
       - name: Install dependencies
         run: |
           npm ci --include=dev
-      
+
       - name: Build Linux
         run: |
           npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Upload Linux DEB
         uses: actions/upload-artifact@v4
         with:
           name: linux-deb
           path: src-tauri/target/release/bundle/deb/**/*.deb
           if-no-files-found: error
-      
+
       - name: Upload Linux AppImage
         uses: actions/upload-artifact@v4
         with:
@@ -109,56 +109,38 @@ jobs:
           path: src-tauri/target/release/bundle/appimage/**/*.AppImage
           if-no-files-found: error
 
-  # macOS 构建已移除
-    runs-on: macos-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-      
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
-      
   create-release:
     runs-on: ubuntu-22.04
     needs: [build-windows, build-linux]
     if: success()
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download Windows MSI
         uses: actions/download-artifact@v4
         with:
           name: windows-msi
           path: release/windows-msi
-      
+
       - name: Download Windows NSIS
         uses: actions/download-artifact@v4
         with:
           name: windows-nsis
           path: release/windows-nsis
-      
+
       - name: Download Linux DEB
         uses: actions/download-artifact@v4
         with:
           name: linux-deb
           path: release/linux-deb
-      
+
       - name: Download Linux AppImage
         uses: actions/download-artifact@v4
         with:
           name: linux-appimage
           path: release/linux-appimage
-      
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
