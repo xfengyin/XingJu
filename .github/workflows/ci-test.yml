@@ -1,0 +1,195 @@
+name: CI Test - Simplified
+
+# 简化版 CI/CD，用于快速测试构建配置
+# 只构建 Linux 平台，验证基础配置是否正确
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*-rc.*'  # RC 版本 Tag
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_VERSION: 1.75
+  NODE_VERSION: 18
+
+jobs:
+  # 阶段 1: 基础依赖测试
+  test-dependencies:
+    runs-on: ubuntu-22.04
+    name: Test Dependencies
+    timeout-minutes: 15
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+      
+      - name: Verify Rust
+        run: |
+          rustc --version
+          cargo --version
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Verify Node.js
+        run: |
+          node --version
+          npm --version
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.0-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libxdo-dev \
+            libssl-dev \
+            libx11-dev \
+            libappindicator3-dev
+      
+      - name: Verify system dependencies
+        run: |
+          echo "✅ All system dependencies installed"
+
+  # 阶段 2: Web 构建测试
+  test-web-build:
+    runs-on: ubuntu-22.04
+    name: Test Web Build
+    needs: test-dependencies
+    timeout-minutes: 10
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build Web
+        run: npm run build
+      
+      - name: Verify build output
+        run: |
+          ls -la dist/
+          echo "Build size:"
+          du -sh dist/
+      
+      - name: Upload Web Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: dist/
+          retention-days: 7
+
+  # 阶段 3: Tauri 构建测试 (Linux only)
+  test-tauri-build:
+    runs-on: ubuntu-22.04
+    name: Test Tauri Build (Linux)
+    needs: test-web-build
+    timeout-minutes: 60
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+      
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.0-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libxdo-dev \
+            libssl-dev
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build Tauri App
+        run: npm run tauri build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: List build artifacts
+        run: |
+          echo "=== Build Output ==="
+          ls -la src-tauri/target/release/
+          ls -la src-tauri/target/release/bundle/deb/ || true
+          ls -la src-tauri/target/release/bundle/appimage/ || true
+      
+      - name: Upload DEB package
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-deb
+          path: src-tauri/target/release/bundle/deb/**/*.deb
+          if-no-files-found: ignore
+          retention-days: 7
+      
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: src-tauri/target/release/bundle/appimage/**/*.AppImage
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # 阶段 4: 生成测试报告
+  generate-report:
+    runs-on: ubuntu-22.04
+    name: Generate Test Report
+    needs: test-tauri-build
+    if: always()
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check job status
+        run: |
+          echo "Job: ${{ job.status }}"
+          echo "Dependencies: ${{ needs.test-dependencies.result }}"
+          echo "Web Build: ${{ needs.test-web-build.result }}"
+          echo "Tauri Build: ${{ needs.test-tauri-build.result }}"
+      
+      - name: Generate summary
+        run: |
+          echo "## CI/CD Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependencies | ${{ needs.test-dependencies.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Web Build | ${{ needs.test-web-build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tauri Build | ${{ needs.test-tauri-build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.test-tauri-build.result }}" == "success" ]; then
+            echo "✅ **CI/CD Test PASSED** - Ready for full multi-platform build" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **CI/CD Test FAILED** - Please check logs and fix issues" >> $GITHUB_STEP_SUMMARY
+          fi
