@@ -1,5 +1,4 @@
-import React from 'react'
-import { useAppStore } from '../store'
+import { useAppStore } from '../../store'
 import '../../styles/design-system.css'
 
 export default function Player() {
