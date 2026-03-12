@@ -109,42 +109,7 @@ jobs:
           path: src-tauri/target/release/bundle/appimage/**/*.AppImage
           if-no-files-found: error
 
-  build-macos-intel:
-    runs-on: macos-12
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-      
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
-      
-      - name: Install dependencies
-        run: |
-          npm ci --include=dev
-      
-      - name: Build macOS Intel
-        run: |
-          npm run tauri build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Upload macOS Intel DMG
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-intel-dmg
-          path: src-tauri/target/release/bundle/dmg/**/*.dmg
-          if-no-files-found: error
-
-  build-macos-arm:
+  # macOS 构建已移除
     runs-on: macos-latest
     
     steps:
@@ -162,26 +127,9 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
       
-      - name: Install dependencies
-        run: |
-          npm ci --include=dev
-      
-      - name: Build macOS ARM
-        run: |
-          npm run tauri build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Upload macOS ARM DMG
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-arm-dmg
-          path: src-tauri/target/release/bundle/dmg/**/*.dmg
-          if-no-files-found: error
-
   create-release:
     runs-on: ubuntu-22.04
-    needs: [build-windows, build-linux, build-macos-intel, build-macos-arm]
+    needs: [build-windows, build-linux]
     if: success()
     
     steps:
@@ -211,18 +159,6 @@ jobs:
           name: linux-appimage
           path: release/linux-appimage
       
-      - name: Download macOS Intel DMG
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-intel-dmg
-          path: release/macos-intel-dmg
-      
-      - name: Download macOS ARM DMG
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-arm-dmg
-          path: release/macos-arm-dmg
-      
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -231,8 +167,6 @@ jobs:
             release/windows-nsis/*.exe
             release/linux-deb/*.deb
             release/linux-appimage/*.AppImage
-            release/macos-intel-dmg/*.dmg
-            release/macos-arm-dmg/*.dmg
           draft: false
           prerelease: false
           generate_release_notes: true
