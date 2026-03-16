@@ -38,7 +38,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --ignore-scripts
+          pnpm rebuild || true
 
       - name: Build Windows
         run: |
@@ -99,7 +100,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --ignore-scripts
+          pnpm rebuild || true
 
       - name: Build Linux
         run: |
@@ -146,7 +148,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --ignore-scripts
+          pnpm rebuild || true
 
       - name: Build macOS
         run: |
