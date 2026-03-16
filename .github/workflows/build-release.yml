@@ -33,17 +33,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: |
-          pnpm install --ignore-scripts
-          pnpm rebuild || true
+          npm ci
 
       - name: Build Windows
         run: |
-          pnpm run tauri build
+          npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -95,17 +92,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: |
-          pnpm install --ignore-scripts
-          pnpm rebuild || true
+          npm ci
 
       - name: Build Linux
         run: |
-          pnpm run tauri build
+          npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -143,17 +137,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: |
-          pnpm install --ignore-scripts
-          pnpm rebuild || true
+          npm ci
 
       - name: Build macOS
         run: |
-          pnpm run tauri build
+          npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
