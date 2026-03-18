@@ -64,7 +64,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: xingju-windows-exe
-          path: ${{ github.workspace }}/src-tauri/target/release/*.exe
+          path: src-tauri/target/release/xingju-core.exe
 
   release:
     name: Create Release
