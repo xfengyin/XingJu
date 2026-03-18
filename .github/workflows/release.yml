@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       
@@ -18,15 +18,23 @@ jobs:
         with:
           node-version: 20
       
-      - name: Install
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+      
+      - name: Install frontend deps
         run: npm install
       
-      - name: Build
+      - name: Build frontend
         run: npm run build
       
-      - name: Upload artifacts
+      - name: Build Tauri app (Windows)
+        run: npm run tauri:build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      
+      - name: Upload Windows executable
         uses: actions/upload-artifact@v4
         with:
-          name: dist
-          path: dist/
-
+          name: xingju-windows
+          path: src-tauri/target/release/bundle/nsis/*.exe
