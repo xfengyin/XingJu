@@ -39,35 +39,29 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Download web artifact for release
+        uses: actions/download-artifact@v4
+        with:
+          name: xingju-web
+          path: web-dist
+
       - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $tag = "${{ github.ref }}" -replace "refs/tags/", ""
-          $body = @{
-            tag_name = $tag
-            name = "XingJu $tag"
-            draft = $false
-            prerelease = $false
-          } | ConvertTo-Json
-          
-          $response = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases" `
-            -Method Post `
-            -Headers @{ Authorization = "token ${{ secrets.GITHUB_TOKEN }}" } `
-            -ContentType "application/json" `
-            -Body $body
-          
-          $releaseId = $response.id
-          Write-Host "Created release ID: $releaseId"
-          
-          # Upload exe
-          $exePath = "src-tauri/target/release/xingju-core.exe"
-          if (Test-Path $exePath) {
-            Invoke-RestMethod -Uri "https://uploads.github.com/repos/${{ github.repository }}/releases/$releaseId/assets?name=xingju.exe" `
-              -Method Post `
-              -Headers @{ 
-                Authorization = "token ${{ secrets.GITHUB_TOKEN }}"
-                Content-Type = "application/octet-stream"
-              } `
-              -InFile $exePath
-            Write-Host "Uploaded exe"
-          }
-        shell: pwsh
+          gh release create ${{ github.ref_name }} --title "XingJu ${{ github.ref_name }}" --notes "Build artifacts"
+
+      - name: Upload EXE to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.ref_name }} src-tauri/target/release/xingju-core.exe --clobber
+
+      - name: Upload Web to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd web-dist
+          powershell -Command "Compress-Archive -Path * -DestinationPath ../web.zip -Force"
+          cd ..
+          gh release upload ${{ github.ref_name }} web.zip --clobber
