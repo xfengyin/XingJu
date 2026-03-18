@@ -39,28 +39,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload as artifact
+      - name: Upload web
         uses: actions/upload-artifact@v4
         with:
-          name: release-files
-          path: |
-            dist/
-            src-tauri/target/release/*.exe
+          name: xingju-web
+          path: dist/
 
-      - name: Create Release via API
-        run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          RELEASE_ID=$(curl -s -X POST https://api.github.com/repos/${{ github.repository }}/releases \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"tag_name\":\"$TAG_NAME\",\"name\":\"XingJu $TAG_NAME\"}" | jq -r .id)
-          
-          echo "Release ID: $RELEASE_ID"
-          
-          # Upload exe
-          curl -s -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=xingju.exe" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/octet-stream" \
-            --data-binary @src-tauri/target/release/xingju-core.exe
-          
-          echo "Upload complete"
+      - name: Upload windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: xingju-windows
+          path: src-tauri/target/release/*.exe
