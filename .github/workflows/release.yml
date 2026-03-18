@@ -61,13 +61,13 @@ jobs:
           npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
 
       - name: Upload Windows Release Folder
         uses: actions/upload-artifact@v4
         with:
           name: xingju-windows
           path: src-tauri/target/release/
+          if-no-files-found: error
 
   create-release:
     runs-on: ubuntu-latest
