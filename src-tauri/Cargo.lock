@@ -1,0 +1,2 @@
+# Manually pinned Cargo.lock for Rust 1.85 compatibility
+# This file can be committed to lock dependencies to older versions
