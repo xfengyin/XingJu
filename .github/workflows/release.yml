@@ -39,18 +39,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install gh CLI
+        run: |
+          winget install --id GitHub.cli -e --silent
+
       - name: Create release and upload
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
         run: |
+          # Refresh PATH
+          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+          
+          # Verify gh is installed
+          gh --version
+          
           # Create release
-          gh release create ${{ github.ref_name }} --title "XingJu ${{ github.ref_name }}" --notes "Auto-generated release"
+          gh release create ${{ github.ref_name }} --title "XingJu ${{ github.ref_name }}" --notes "Auto-generated release" --debug
           
           # Upload EXE
           gh release upload ${{ github.ref_name }} src-tauri/target/release/xingju-core.exe --clobber
-          
-          # Create and upload web zip
-          cd dist
-          powershell -Command "Compress-Archive -Path * -DestinationPath ../web.zip -Force"
-          cd ..
-          gh release upload ${{ github.ref_name }} web.zip --clobber
