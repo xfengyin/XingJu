@@ -51,11 +51,8 @@ jobs:
           name: windows
           path: src-tauri/target/release/
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            src-tauri/target/release/*.exe
-            dist/**/*
+      - name: Create Release with gh CLI
+        run: |
+          gh release create ${{ github.ref_name }} --title "XingJu ${{ github.ref_name }}" --notes "Auto release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
