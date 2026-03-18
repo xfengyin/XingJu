@@ -50,3 +50,53 @@ jobs:
         with:
           name: xingju-windows
           path: src-tauri/target/release/*.exe
+
+      - name: Create Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            const tagName = context.ref.replace('refs/tags/', '');
+            
+            // Create release
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tagName,
+              name: 'XingJu ' + tagName,
+              draft: false,
+              prerelease: false
+            });
+            
+            console.log('Created release:', release.data.id);
+            
+            // Upload exe file
+            const exePath = path.resolve(process.cwd(), 'src-tauri/target/release/xingju-core.exe');
+            if (fs.existsSync(exePath)) {
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                name: 'xingju.exe',
+                data: fs.readFileSync(exePath)
+              });
+              console.log('Uploaded exe');
+            }
+            
+            // Upload web zip
+            const distPath = path.resolve(process.cwd(), 'dist');
+            const { execSync } = require('child_process');
+            execSync(`cd ${distPath} && powershell Compress-Archive -Path * -DestinationPath web.zip -Force`);
+            const webZipPath = path.resolve(process.cwd(), 'dist/web.zip');
+            if (fs.existsSync(webZipPath)) {
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                name: 'web.zip',
+                data: fs.readFileSync(webZipPath)
+              });
+              console.log('Uploaded web.zip');
+            }
