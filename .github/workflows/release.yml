@@ -20,7 +20,7 @@ jobs:
           cache: 'npm'
       
       - name: Install
-        run: npm install
+        run: npm ci
       
       - name: Build
         run: npm run build
@@ -30,11 +30,3 @@ jobs:
         with:
           name: xingju-web
           path: dist/
-      
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/
-          draft: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
