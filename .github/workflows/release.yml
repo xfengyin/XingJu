@@ -39,18 +39,46 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload all
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release-files
           path: |
             dist/
-            src-tauri/target/release/xingju-core.exe
+            src-tauri/target/release/*.exe
 
-      - name: Create Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "release-files/**/*"
-          artifactErrorsFailBuild: false
+      - name: Create Release with tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag=$(echo "${{ github.ref }}" | sed 's/refs\/tags\///')
+          echo "Creating release for tag: $tag"
+          
+          # Get release ID
+          release_id=$(curl -s -X POST "https://api.github.com/repos/${{ github.repository }}/releases" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"tag_name\":\"$tag\",\"name\":\"XingJu $tag\"}" | jq -r '.id')
+          
+          echo "Release ID: $release_id"
+          
+          # Upload exe
+          if [ -f "src-tauri/target/release/xingju-core.exe" ]; then
+            curl -s -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$release_id/assets?name=xingju.exe" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @src-tauri/target/release/xingju-core.exe
+            echo "Uploaded xingju.exe"
+          fi
+          
+          # Upload web
+          cd dist && zip -r ../web.zip * && cd ..
+          if [ -f "web.zip" ]; then
+            curl -s -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$release_id/assets?name=web.zip" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/zip" \
+              --data-binary @web.zip
+            echo "Uploaded web.zip"
+          fi
+          
+          echo "Done!"
