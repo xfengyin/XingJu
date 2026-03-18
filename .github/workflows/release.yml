@@ -39,20 +39,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload web build
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: web
-          path: dist/
+          name: artifacts
+          path: |
+            dist/
+            src-tauri/target/release/*.exe
 
-      - name: Upload windows build
-        uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: windows
-          path: src-tauri/target/release/
-
-      - name: Create Release with gh CLI
-        run: |
-          gh release create ${{ github.ref_name }} --title "XingJu ${{ github.ref_name }}" --notes "Auto release"
+          files: |
+            dist/**/*
+            src-tauri/target/release/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
