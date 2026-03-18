@@ -39,27 +39,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload artifacts
+      - name: Upload as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-artifacts
+          name: release-files
           path: |
             dist/
             src-tauri/target/release/*.exe
 
-      - name: Create Release
+      - name: Create Release via API
         run: |
-          echo "Creating release for ${{ github.ref_name }}"
-          ls -la dist/
-          ls -la src-tauri/target/release/*.exe || echo "No exe found"
-        shell: bash
-
-      - name: Upload to Release
-        uses: softprops/action-gh-release@v1
-        with:
-          body: "Auto-generated release"
-          files: |
-            dist/**/*
-            src-tauri/target/release/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          RELEASE_ID=$(curl -s -X POST https://api.github.com/repos/${{ github.repository }}/releases \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"tag_name\":\"$TAG_NAME\",\"name\":\"XingJu $TAG_NAME\"}" | jq -r .id)
+          
+          echo "Release ID: $RELEASE_ID"
+          
+          # Upload exe
+          curl -s -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=xingju.exe" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @src-tauri/target/release/xingju-core.exe
+          
+          echo "Upload complete"
