@@ -42,10 +42,10 @@ jobs:
         with:
           version: 9
 
-      - name: Install Rust
+      - name: Install Rust (nightly for Tauri 2)
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.85
+          toolchain: nightly
 
       - name: Install Node.js
         uses: actions/setup-node@v4
