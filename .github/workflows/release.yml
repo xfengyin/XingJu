@@ -1,4 +1,4 @@
-name: Build & Release
+name: Build
 
 on:
   push:
@@ -39,28 +39,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload EXE to existing release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag=$(echo "${{ github.ref }}" | sed 's/refs\/tags\///')
-          release_id=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/tags/$tag" | jq -r '.id')
-          echo "Release ID for $tag: $release_id"
-          if [ "$release_id" != "null" ]; then
-            curl -s -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$release_id/assets?name=xingju.exe" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary @src-tauri/target/release/xingju-core.exe
-            echo "Uploaded xingju.exe"
-          else
-            echo "Release not found, creating new..."
-            new_release=$(curl -s -X POST "https://api.github.com/repos/${{ github.repository }}/releases" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d "{\"tag_name\":\"$tag\",\"name\":\"XingJu $tag\"}")
-            new_id=$(echo $new_release | jq -r '.id')
-            curl -s -X POST "https://uploads.github.com/repos/${{ github.repository }}/releases/$new_id/assets?name=xingju.exe" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary @src-tauri/target/release/xingju-core.exe
-          fi
+      - name: Upload web
+        uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: dist/
+
+      - name: Upload exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: exe
+          path: src-tauri/target/release/xingju-core.exe
