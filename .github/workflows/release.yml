@@ -60,11 +60,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Windows EXE
+      - name: Upload Windows folder
         uses: actions/upload-artifact@v4
         with:
-          name: xingju-windows-exe
-          path: src-tauri/target/release/xingju-core.exe
+          name: xingju-windows
+          path: src-tauri/target/release/
 
   release:
     name: Create Release
@@ -81,10 +81,10 @@ jobs:
           name: xingju-web
           path: release/web
 
-      - name: Download Windows EXE
+      - name: Download Windows folder
         uses: actions/download-artifact@v4
         with:
-          name: xingju-windows-exe
+          name: xingju-windows
           path: release/windows
 
       - name: Create GitHub Release
@@ -93,5 +93,6 @@ jobs:
           files: |
             release/web/**/*
             release/windows/*.exe
+            release/windows/*.dll
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
