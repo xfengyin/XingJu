@@ -39,29 +39,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download web artifact for release
-        uses: actions/download-artifact@v4
-        with:
-          name: xingju-web
-          path: web-dist
-
-      - name: Create Release
+      - name: Create release and upload
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create ${{ github.ref_name }} --title "XingJu ${{ github.ref_name }}" --notes "Build artifacts"
-
-      - name: Upload EXE to Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
+          # Create release
+          gh release create ${{ github.ref_name }} --title "XingJu ${{ github.ref_name }}" --notes "Auto-generated release"
+          
+          # Upload EXE
           gh release upload ${{ github.ref_name }} src-tauri/target/release/xingju-core.exe --clobber
-
-      - name: Upload Web to Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd web-dist
+          
+          # Create and upload web zip
+          cd dist
           powershell -Command "Compress-Archive -Path * -DestinationPath ../web.zip -Force"
           cd ..
           gh release upload ${{ github.ref_name }} web.zip --clobber
