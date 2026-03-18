@@ -63,11 +63,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
-      - name: Upload Windows EXE
+      - name: Upload Windows Release Folder
         uses: actions/upload-artifact@v4
         with:
-          name: xingju-windows-exe
-          path: src-tauri/target/release/*.exe
+          name: xingju-windows
+          path: src-tauri/target/release/
 
   create-release:
     runs-on: ubuntu-latest
@@ -83,10 +83,10 @@ jobs:
           name: xingju-web
           path: release/web
 
-      - name: Download Windows EXE
+      - name: Download Windows Release Folder
         uses: actions/download-artifact@v4
         with:
-          name: xingju-windows-exe
+          name: xingju-windows
           path: release/windows
           if-no-files-found: ignore
 
@@ -96,6 +96,7 @@ jobs:
           files: |
             release/web/**/*
             release/windows/*.exe
+            release/windows/*.dll
           draft: false
           prerelease: false
           generate_release_notes: true
