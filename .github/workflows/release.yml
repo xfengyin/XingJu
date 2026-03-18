@@ -8,8 +8,8 @@ on:
 
 jobs:
   build:
-    name: Build
-    runs-on: windows-latest
+    name: Build Web
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
@@ -17,24 +17,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
       
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-      
-      - name: Install frontend deps
+      - name: Install
         run: npm install
       
-      - name: Build frontend
+      - name: Build
         run: npm run build
       
-      - name: Build Tauri app (Windows)
-        run: npm run tauri:build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-      
-      - name: Upload Windows executable
+      - name: Upload web build
         uses: actions/upload-artifact@v4
         with:
-          name: xingju-windows
-          path: src-tauri/target/release/bundle/nsis/*.exe
+          name: xingju-web
+          path: dist/
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
