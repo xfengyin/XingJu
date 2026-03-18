@@ -55,12 +55,11 @@ jobs:
         run: npm install
 
       - name: Build Windows
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-exe
-          path: src-tauri/target/release/xingju-core.exe
+        run: npm run tauri build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload windows folder
+      - name: Upload windows exe
         uses: actions/upload-artifact@v4
         with:
           name: windows-folder
