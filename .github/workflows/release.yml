@@ -7,8 +7,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build All
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Install
+        run: npm install
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Upload web
+        uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: dist/
+
+  build-windows:
+    name: Build Windows
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,31 +54,41 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build Web
-        run: npm run build
-
       - name: Build Windows
         run: npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install gh CLI
-        run: |
-          winget install --id GitHub.cli -e --silent
+      - name: Upload windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: src-tauri/target/release/*.exe
 
-      - name: Create release and upload
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-web, build-windows]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download web
+        uses: actions/download-artifact@v4
+        with:
+          name: web
+          path: web
+      
+      - name: Download windows
+        uses: actions/download-artifact@v4
+        with:
+          name: windows
+          path: windows
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            windows/*.exe
+            web/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: pwsh
-        run: |
-          # Refresh PATH
-          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-          
-          # Verify gh is installed
-          gh --version
-          
-          # Create release
-          gh release create ${{ github.ref_name }} --title "XingJu ${{ github.ref_name }}" --notes "Auto-generated release" --debug
-          
-          # Upload EXE
-          gh release upload ${{ github.ref_name }} src-tauri/target/release/xingju-core.exe --clobber
