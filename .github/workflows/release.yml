@@ -71,6 +71,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Upload raw .exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: xingju-windows-exe
+          path: src-tauri/target/release/xingju-core.exe
+          if-no-files-found: ignore
+
       - name: Upload Windows NSIS
         uses: actions/upload-artifact@v4
         with:
@@ -113,11 +120,19 @@ jobs:
           path: release/windows-msi
           if-no-files-found: ignore
 
+      - name: Download raw .exe
+        uses: actions/download-artifact@v4
+        with:
+          name: xingju-windows-exe
+          path: release/windows-exe
+          if-no-files-found: ignore
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             release/web/**/*
+            release/windows-exe/*.exe
             release/windows-nsis/**/*.exe
             release/windows-msi/**/*.msi
           draft: false
