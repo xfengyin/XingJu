@@ -51,11 +51,6 @@ jobs:
           name: windows
           path: src-tauri/target/release/
 
-      - name: List files
-        run: |
-          ls -la src-tauri/target/release/*.exe 2>/dev/null || echo "No exe"
-          ls -la dist/ 2>/dev/null || echo "No dist"
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
