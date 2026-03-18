@@ -60,10 +60,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: List release files
-        run: |
-          Get-ChildItem -Path "src-tauri/target/release" -Filter "*.exe" -Recurse | Select-Object FullName
-
       - name: Upload Windows folder
         uses: actions/upload-artifact@v4
         with:
