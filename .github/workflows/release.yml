@@ -63,16 +63,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
-      - name: List build output
-        run: |
-          dir /b src-tauri\target\release\*.exe 2>nul || echo "No exe found"
-
       - name: Upload Windows EXE
         uses: actions/upload-artifact@v4
         with:
           name: xingju-windows-exe
-          path: src-tauri/target/release/xingju-core.exe
-          if-no-files-found: warn
+          path: src-tauri/target/release/*.exe
 
   create-release:
     runs-on: ubuntu-latest
