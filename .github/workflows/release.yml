@@ -7,31 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-web:
-    name: Build Web
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      
-      - name: Install
-        run: npm install
-      
-      - name: Build
-        run: npm run build
-      
-      - name: Upload web
-        uses: actions/upload-artifact@v4
-        with:
-          name: web
-          path: dist/
-
-  build-windows:
-    name: Build Windows
+  build:
+    name: Build All
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,44 +31,26 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Build Web
+        run: npm run build
+
       - name: Build Windows
         run: npm run tauri build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload windows exe
+      - name: Upload all
         uses: actions/upload-artifact@v4
         with:
-          name: windows-folder
-          path: src-tauri/target/release/
+          name: release-files
+          path: |
+            dist/
+            src-tauri/target/release/xingju-core.exe
 
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    needs: [build-web, build-windows]
-    permissions:
-      contents: write
-    steps:
-      - name: Download exe
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-exe
-          path: release
-      
-      - name: Download web
-        uses: actions/download-artifact@v4
-        with:
-          name: web
-          path: release/web
-
-      - name: List files
-        run: |
-          ls -la release/
-      
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "release/**/*"
+          artifacts: "release-files/**/*"
           artifactErrorsFailBuild: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
