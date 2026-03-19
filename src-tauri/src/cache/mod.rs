@@ -35,8 +35,9 @@ impl CacheManager {
                 .as_secs() as i64 + ttl as i64
         });
         
-        self.cache.insert(key, CacheEntry {
-            key: key.clone(),
+        let key_clone = key.clone();
+        self.cache.insert(key_clone, CacheEntry {
+            key,
             value,
             expires_at,
         });
