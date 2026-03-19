@@ -39,6 +39,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Find exe files
+        run: powershell -Command "Get-ChildItem -Path . -Recurse -Filter '*.exe' | Select-Object FullName"
+
       - name: Upload web
         uses: actions/upload-artifact@v4
         with:
@@ -49,5 +52,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: exe
-          path: src-tauri/target/release/XingJu.exe
+          path: src-tauri/target/release/
+          pattern: "*.exe"
           if-no-files-found: warn
