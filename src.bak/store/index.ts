@@ -1,22 +1,5 @@
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-
-interface Track {
-  id: string
-  title: string
-  artist: string
-  url: string
-  cover?: string
-  duration?: number
-}
-
-interface AppSettings {
-  autoPlay: boolean
-  showLyrics: boolean
-  cacheSize: number
-  volume: number
-  quality: 'low' | 'medium' | 'high'
-}
+import { persist } from 'zustand/middleware'
 
 interface AppState {
   // 当前模块
@@ -28,33 +11,24 @@ interface AppState {
   setSearchQuery: (query: string) => void
   
   // 播放状态
-  currentTrack: Track | null
+  currentTrack: any | null
   isPlaying: boolean
   progress: number
-  volume: number
-  setCurrentTrack: (track: Track | null) => void
+  setCurrentTrack: (track: any) => void
   setIsPlaying: (playing: boolean) => void
   setProgress: (progress: number) => void
-  setVolume: (volume: number) => void
   
   // 主题
   theme: 'cyberpunk' | 'dark' | 'light'
   setTheme: (theme: 'cyberpunk' | 'dark' | 'light') => void
   
   // 设置
-  settings: AppSettings
-  updateSettings: (settings: Partial<AppSettings>) => void
-}
-
-// 持久化配置 - 只保存关键数据，减少存储体积
-const persistConfig = {
-  name: 'xingju-storage',
-  storage: createJSONStorage(() => localStorage),
-  partialize: (state: AppState) => ({
-    theme: state.theme,
-    settings: state.settings,
-    volume: state.volume,
-  }),
+  settings: {
+    autoPlay: boolean
+    showLyrics: boolean
+    cacheSize: number
+  }
+  updateSettings: (settings: Partial<any>) => void
 }
 
 export const useAppStore = create<AppState>()(
@@ -72,11 +46,9 @@ export const useAppStore = create<AppState>()(
       currentTrack: null,
       isPlaying: false,
       progress: 0,
-      volume: 0.8,
       setCurrentTrack: (track) => set({ currentTrack: track }),
       setIsPlaying: (playing) => set({ isPlaying: playing }),
       setProgress: (progress) => set({ progress }),
-      setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
       
       // 主题
       theme: 'cyberpunk',
@@ -87,14 +59,14 @@ export const useAppStore = create<AppState>()(
         autoPlay: true,
         showLyrics: true,
         cacheSize: 1024,
-        volume: 0.8,
-        quality: 'high',
       },
       updateSettings: (newSettings) =>
         set((state) => ({
           settings: { ...state.settings, ...newSettings },
         })),
     }),
-    persistConfig
+    {
+      name: 'xingju-storage',
+    }
   )
 )
