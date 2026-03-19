@@ -1,0 +1,43 @@
+# Node
+node_modules/
+dist/
+.npm
+package-lock.json
+
+# Rust
+src-tauri/target/
+**/*.rs.bk
+Cargo.lock
+
+# Tauri
+*.deb
+*.msi
+*.app
+*.dmg
+*.exe
+
+# 临时文件
+*.bak
+src.bak/
+*.tar.gz
+
+# 数据库
+*.db
+*.sqlite
+
+# 日志
+*.log
+
+# 环境
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
