@@ -10,7 +10,7 @@ name = "xingju_core"
 crate-type = ["cdylib", "staticlib", "lib"]
 
 [[bin]]
-name = "xingju-core"
+name = "xingju"
 path = "src/main.rs"
 
 [dependencies]
