@@ -1,8 +1,6 @@
 //! 多平台 API 集成
 
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use tokio::sync::Mutex;
 
 /// 音乐搜索结果
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -122,7 +120,7 @@ impl MusicAPI {
     }
 
     /// 网易云音乐搜索
-    async fn search_neteache(&self, keyword: &str) -> Result<Vec<MusicTrack>, ApiError> {
+    async fn search_netease(&self, keyword: &str) -> Result<Vec<MusicTrack>, ApiError> {
         let url = format!(
             "https://netease-cloud-music-api-five-roan-25.vercel.app/search?keywords={}&limit=20",
             keyword
@@ -214,7 +212,7 @@ impl VideoAPI {
                 videos.push(VideoResult {
                     id: item["aid"].as_i64().unwrap_or(0).to_string(),
                     title: item["title"].as_str().unwrap_or("未知").to_string(),
-                    author: item["author"].as_str().unwrap_or("未知"),
+                    author: item["author"].as_str().unwrap_or("未知").to_string(),
                     duration: 0, // 需要单独获取
                     url: format!("https://www.bilibili.com/video/{}", item["bvid"].as_str().unwrap_or("")),
                     cover: item["pic"].as_str().unwrap_or("").to_string(),

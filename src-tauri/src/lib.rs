@@ -8,12 +8,12 @@ mod utils;
 
 use api::{MusicTrack, VideoResult, AppState};
 use database::DatabaseManager;
-use sqlx::SqlitePool;
 use tauri::State;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 use std::panic;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use chrono::Utc;
 
 fn setup_logging() {
     let filter = EnvFilter::try_from_default_env()
@@ -126,7 +126,7 @@ async fn add_history(
             id: 0,
             module,
             title,
-            timestamp: chrono::Utc::now().timestamp(),
+            timestamp: Utc::now().timestamp(),
             metadata: "{}".to_string(),
         };
         db.add_history(&record).await.map_err(|e| e.to_string())?;
