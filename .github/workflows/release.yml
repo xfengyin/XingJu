@@ -1,4 +1,4 @@
-name: Build
+name: Build & Release
 
 on:
   push:
@@ -10,13 +10,10 @@ jobs:
   build:
     name: Build All
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -27,6 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
@@ -34,18 +32,61 @@ jobs:
       - name: Build Web
         run: npm run build
 
-      - name: Build Rust backend
-        run: cd src-tauri && cargo build --release
+      - name: Build Tauri application
+        run: npm run tauri build
 
       - name: Upload web
         uses: actions/upload-artifact@v4
         with:
           name: web
           path: dist/
+          if-no-files-found: warn
 
       - name: Upload exe
         uses: actions/upload-artifact@v4
         with:
           name: exe
-          path: src-tauri/target/release/xingju-core.exe
+          path: src-tauri/target/release/XingJu.exe
           if-no-files-found: warn
+
+      - name: Upload MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: msi
+          path: src-tauri/target/release/bundle/msi/*.msi
+          if-no-files-found: warn
+
+      - name: Upload NSIS
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup
+          path: src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: warn
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/exe/*.exe
+            artifacts/msi/*.msi
+            artifacts/setup/*.exe
+            artifacts/web/**
+          draft: false
+          prerelease: ${{ contains(github.ref, 'rc') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
