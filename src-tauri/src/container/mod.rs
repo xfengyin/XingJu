@@ -1,6 +1,5 @@
 //! 容器化管理模块
 
-use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
 /// 模块容器状态
@@ -40,14 +39,12 @@ impl ModuleContainer {
     }
     
     pub fn load_module(&mut self, path: &str) -> Result<(), String> {
-        // TODO: 实现模块加载
         println!("Loading module from: {}", path);
         self.state = ContainerState::Running;
         Ok(())
     }
     
     pub fn unload_module(&mut self) -> Result<(), String> {
-        // TODO: 实现模块卸载
         self.state = ContainerState::Stopped;
         Ok(())
     }
@@ -58,40 +55,5 @@ impl ModuleContainer {
     
     pub fn get_resources(&self) -> &ResourceUsage {
         &self.resources
-    }
-}
-
-/// Python 绑定 - 模块容器
-#[pyclass]
-pub struct PyModuleContainer {
-    inner: ModuleContainer,
-}
-
-#[pymethods]
-impl PyModuleContainer {
-    #[new]
-    fn new(module_id: &str, name: &str) -> Self {
-        Self {
-            inner: ModuleContainer::new(module_id, name),
-        }
-    }
-    
-    fn load(&mut self, path: &str) -> PyResult<()> {
-        self.inner.load_module(path)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
-    }
-    
-    fn unload(&mut self) -> PyResult<()> {
-        self.inner.unload_module()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
-    }
-    
-    fn get_state(&self) -> String {
-        format!("{:?}", self.inner.get_state())
-    }
-    
-    fn __repr__(&self) -> String {
-        format!("ModuleContainer(id={}, name={}, state={})", 
-                self.inner.id, self.inner.name, self.get_state())
     }
 }
