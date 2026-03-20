@@ -17,6 +17,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
+          targets: x86_64-pc-windows-msvc
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -31,7 +32,7 @@ jobs:
         run: npm run build
 
       - name: Build Tauri application
-        run: npm run tauri build
+        run: npm run tauri build -- --target x86_64-pc-windows-msvc
 
       - name: Upload web
         uses: actions/upload-artifact@v4
@@ -39,23 +40,27 @@ jobs:
           name: web
           path: dist/
 
+      - name: Find exe
+        run: |
+          Get-ChildItem -Path "src-tauri/target" -Recurse -Filter "*.exe" | ForEach-Object { Write-Host $_.FullName }
+
       - name: Upload exe
         uses: actions/upload-artifact@v4
         with:
           name: exe
-          path: src-tauri/target/release/xingju.exe
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/xingju.exe
           if-no-files-found: warn
 
       - name: Upload MSI
         uses: actions/upload-artifact@v4
         with:
           name: msi
-          path: src-tauri/target/release/bundle/msi/*.msi
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
           if-no-files-found: warn
 
       - name: Upload NSIS
         uses: actions/upload-artifact@v4
         with:
           name: setup
-          path: src-tauri/target/release/bundle/nsis/*.exe
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
           if-no-files-found: warn
