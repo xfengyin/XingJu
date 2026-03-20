@@ -34,15 +34,22 @@ jobs:
       - name: Build Tauri application
         run: npm run tauri build -- --target x86_64-pc-windows-msvc
 
+      - name: Check target directory
+        run: |
+          Write-Host "=== Checking target directory ==="
+          if (Test-Path "src-tauri/target") {
+            Get-ChildItem "src-tauri/target" -Directory | ForEach-Object { Write-Host "Dir: $_" }
+          }
+          Write-Host "=== Checking release ==="
+          if (Test-Path "src-tauri/target/x86_64-pc-windows-msvc/release") {
+            Get-ChildItem "src-tauri/target/x86_64-pc-windows-msvc/release" -File | ForEach-Object { Write-Host "File: $($_.Name)" }
+          }
+
       - name: Upload web
         uses: actions/upload-artifact@v4
         with:
           name: web
           path: dist/
-
-      - name: Find exe
-        run: |
-          Get-ChildItem -Path "src-tauri/target" -Recurse -Filter "*.exe" | ForEach-Object { Write-Host $_.FullName }
 
       - name: Upload exe
         uses: actions/upload-artifact@v4
@@ -51,16 +58,9 @@ jobs:
           path: src-tauri/target/x86_64-pc-windows-msvc/release/xingju.exe
           if-no-files-found: warn
 
-      - name: Upload MSI
+      - name: Upload all release files
         uses: actions/upload-artifact@v4
         with:
-          name: msi
-          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
-          if-no-files-found: warn
-
-      - name: Upload NSIS
-        uses: actions/upload-artifact@v4
-        with:
-          name: setup
-          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          name: release-files
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/
           if-no-files-found: warn
