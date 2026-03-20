@@ -34,16 +34,10 @@ jobs:
       - name: Build Tauri application
         run: npm run tauri build -- --target x86_64-pc-windows-msvc
 
-      - name: Check target directory
+      - name: Find exe files
         run: |
-          Write-Host "=== Checking target directory ==="
-          if (Test-Path "src-tauri/target") {
-            Get-ChildItem "src-tauri/target" -Directory | ForEach-Object { Write-Host "Dir: $_" }
-          }
-          Write-Host "=== Checking release ==="
-          if (Test-Path "src-tauri/target/x86_64-pc-windows-msvc/release") {
-            Get-ChildItem "src-tauri/target/x86_64-pc-windows-msvc/release" -File | ForEach-Object { Write-Host "File: $($_.Name)" }
-          }
+          Write-Host "=== Looking for exe files ==="
+          Get-ChildItem -Path "src-tauri/target" -Recurse -Filter "*.exe" | Select-Object -First 10 FullName,Length
 
       - name: Upload web
         uses: actions/upload-artifact@v4
@@ -51,16 +45,23 @@ jobs:
           name: web
           path: dist/
 
-      - name: Upload exe
+      - name: Upload exe (XingJu.exe)
         uses: actions/upload-artifact@v4
         with:
-          name: exe
+          name: exe-xingju
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/XingJu.exe
+          if-no-files-found: warn
+
+      - name: Upload exe (xingju.exe)
+        uses: actions/upload-artifact@v4
+        with:
+          name: exe-binary
           path: src-tauri/target/x86_64-pc-windows-msvc/release/xingju.exe
           if-no-files-found: warn
 
-      - name: Upload all release files
+      - name: Upload all release
         uses: actions/upload-artifact@v4
         with:
-          name: release-files
+          name: release-all
           path: src-tauri/target/x86_64-pc-windows-msvc/release/
           if-no-files-found: warn
