@@ -6,9 +6,14 @@ on:
       - "v*"
   workflow_dispatch:
 
+env:
+  CARGO_TERM_COLOR: always
+  RUST_VERSION: "1.75"
+  NODE_VERSION: "18"
+
 jobs:
   build:
-    name: Build All
+    name: Build Windows
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,13 +21,13 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
+          toolchain: ${{ env.RUST_VERSION }}
           targets: x86_64-pc-windows-msvc
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
@@ -33,11 +38,25 @@ jobs:
 
       - name: Build Tauri application
         run: npm run tauri build -- --target x86_64-pc-windows-msvc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Find exe files
+        shell: pwsh
         run: |
           Write-Host "=== Looking for exe files ==="
-          Get-ChildItem -Path "src-tauri/target" -Recurse -Filter "*.exe" | Select-Object -First 10 FullName,Length
+          Get-ChildItem -Path "." -Recurse -Filter "*.exe" -File | Select-Object -First 20 FullName,Length
+
+      - name: List release directory
+        shell: pwsh
+        run: |
+          Write-Host "=== Release directory contents ==="
+          if (Test-Path "src-tauri/target/x86_64-pc-windows-msvc/release") {
+            Get-ChildItem "src-tauri/target/x86_64-pc-windows-msvc/release" | Select-Object Name,Length
+          }
+          if (Test-Path "src-tauri/target/release/bundle") {
+            Get-ChildItem "src-tauri/target/release/bundle" -Recurse -File | Select-Object FullName,Length
+          }
 
       - name: Upload web
         uses: actions/upload-artifact@v4
@@ -45,23 +64,18 @@ jobs:
           name: web
           path: dist/
 
-      - name: Upload exe (XingJu.exe)
+      - name: Upload exe (main binary)
         uses: actions/upload-artifact@v4
         with:
-          name: exe-xingju
-          path: src-tauri/target/x86_64-pc-windows-msvc/release/XingJu.exe
-          if-no-files-found: warn
-
-      - name: Upload exe (xingju.exe)
-        uses: actions/upload-artifact@v4
-        with:
-          name: exe-binary
-          path: src-tauri/target/x86_64-pc-windows-msvc/release/xingju.exe
+          name: exe-main
+          path: |
+            src-tauri/target/x86_64-pc-windows-msvc/release/XingJu.exe
+            src-tauri/target/x86_64-pc-windows-msvc/release/xingju.exe
           if-no-files-found: warn
 
       - name: Upload all release
         uses: actions/upload-artifact@v4
         with:
-          name: release-all
-          path: src-tauri/target/x86_64-pc-windows-msvc/release/
+          name: release-bundle
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/
           if-no-files-found: warn
