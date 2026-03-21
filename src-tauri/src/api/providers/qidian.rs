@@ -43,13 +43,14 @@ fn generate_mock_novels(query: &str, limit: u32) -> Vec<Novel> {
     
     (0..limit.min(20))
         .map(|i| {
-            let category = categories[i % categories.len()];
-            let status = statuses[i % 2];
+            let idx = i as usize;
+            let category = categories[idx % categories.len()];
+            let status = statuses[idx % 2];
             
             Novel {
                 id: format!("novel_{}_{}", query, i),
                 title: format!("《{}》之{}传奇 第{}部", query, category, i + 1),
-                author: format!("{}作者", if i % 3 == 0 { "大神" } else if i % 3 == 1 { "白金" } else { "签约" }),
+                author: format!("{}作者", if idx % 3 == 0 { "大神" } else if idx % 3 == 1 { "白金" } else { "签约" }),
                 cover: generate_cover_emoji(category),
                 source: "qidian".to_string(),
                 chapters: 100 + i * 50,
@@ -116,14 +117,15 @@ pub async fn search_manga(query: &str, limit: u32) -> Result<Vec<crate::api::Man
     
     let results: Vec<crate::api::Manga> = (0..limit.min(20))
         .map(|i| {
+            let idx = i as usize;
             crate::api::Manga {
                 id: format!("manga_{}_{}", query, i),
                 title: format!("《{}》漫画版 第{}季", query, i + 1),
                 author: format!("漫画家{}", i + 1),
-                cover: if i % 4 == 0 { "🎨" } else if i % 4 == 1 { "🖌️" } else if i % 4 == 2 { "✏️" } else { "📐" }.to_string(),
-                source: sources[i % sources.len()].to_string(),
+                cover: if idx % 4 == 0 { "🎨" } else if idx % 4 == 1 { "🖌️" } else if idx % 4 == 2 { "✏️" } else { "📐" }.to_string(),
+                source: sources[idx % sources.len()].to_string(),
                 chapters: 20 + i * 10,
-                status: statuses[i % 2].to_string(),
+                status: statuses[idx % 2].to_string(),
             }
         })
         .collect();
