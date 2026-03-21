@@ -113,6 +113,10 @@ pub fn run() {
             api::search_video,
             api::search_novel,
             api::search_manga,
+            // 收藏命令
+            api::add_favorite,
+            api::get_favorites,
+            api::remove_favorite,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

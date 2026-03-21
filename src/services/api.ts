@@ -106,7 +106,8 @@ export async function clearHistory(): Promise<void> {
 export async function searchMusic(params: SearchParams): Promise<MusicTrack[]> {
   const response = await invoke<ApiResponse<MusicTrack[]>>('search_music', { params })
   if (!response.success || !response.data) {
-    throw new Error(response.error || 'Search failed')
+    console.error('Music search error:', response.error)
+    return []
   }
   return response.data
 }
@@ -114,7 +115,8 @@ export async function searchMusic(params: SearchParams): Promise<MusicTrack[]> {
 export async function searchVideo(params: SearchParams): Promise<Video[]> {
   const response = await invoke<ApiResponse<Video[]>>('search_video', { params })
   if (!response.success || !response.data) {
-    throw new Error(response.error || 'Search failed')
+    console.error('Video search error:', response.error)
+    return []
   }
   return response.data
 }
@@ -122,7 +124,8 @@ export async function searchVideo(params: SearchParams): Promise<Video[]> {
 export async function searchNovel(params: SearchParams): Promise<Novel[]> {
   const response = await invoke<ApiResponse<Novel[]>>('search_novel', { params })
   if (!response.success || !response.data) {
-    throw new Error(response.error || 'Search failed')
+    console.error('Novel search error:', response.error)
+    return []
   }
   return response.data
 }
@@ -130,19 +133,15 @@ export async function searchNovel(params: SearchParams): Promise<Novel[]> {
 export async function searchManga(params: SearchParams): Promise<Manga[]> {
   const response = await invoke<ApiResponse<Manga[]>>('search_manga', { params })
   if (!response.success || !response.data) {
-    throw new Error(response.error || 'Search failed')
+    console.error('Manga search error:', response.error)
+    return []
   }
   return response.data
 }
 
 // ============================================================================
-// 收藏 API (预留)
+// 收藏 API
 // ============================================================================
-
-export async function getFavorites(module?: string, limit: number = 50): Promise<FavoriteRecord[]> {
-  // TODO: 实现 Tauri command
-  return []
-}
 
 export async function addFavorite(
   module: string,
@@ -150,15 +149,35 @@ export async function addFavorite(
   title: string,
   cover: string = ''
 ): Promise<boolean> {
-  // TODO: 实现 Tauri command
-  return false
+  return invoke('add_favorite', { module, itemId, title, cover })
+}
+
+export async function getFavorites(module?: string, limit: number = 50): Promise<FavoriteRecord[]> {
+  return invoke('get_favorites', { module, limit })
 }
 
 export async function removeFavorite(module: string, itemId: string): Promise<void> {
-  // TODO: 实现 Tauri command
+  return invoke('remove_favorite', { module, itemId })
 }
 
-export async function isFavorited(module: string, itemId: string): Promise<boolean> {
-  // TODO: 实现 Tauri command
-  return false
+// ============================================================================
+// 工具函数
+// ============================================================================
+
+export function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${mins}:${secs.toString().padStart(2, '0')}`
+}
+
+export function getSourceLabel(source: string): string {
+  const labels: Record<string, string> = {
+    netease: '网易云',
+    qq: 'QQ音乐',
+    kugou: '酷狗',
+    bilibili: 'B站',
+    youku: '优酷',
+    qidian: '起点',
+  }
+  return labels[source] || source
 }
