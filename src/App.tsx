@@ -1,8 +1,10 @@
-import { useState, Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import Sidebar from './components/Layout/Sidebar'
 import Header from './components/Layout/Header'
 import Player from './components/Layout/Player'
 import ErrorBoundary from './components/ErrorBoundary'
+import { useAppStore } from './store'
+import { addHistory } from './services/api'
 import './styles/design-system.css'
 
 // 路由级别代码分割 - 懒加载模块
@@ -24,8 +26,27 @@ const ModuleSkeleton = () => (
 )
 
 function App() {
-  const [activeModule, setActiveModule] = useState<'music' | 'video' | 'novel' | 'manga'>('music')
-  const [searchQuery, setSearchQuery] = useState('')
+  // 使用 Zustand store
+  const { 
+    activeModule, 
+    setActiveModule, 
+    searchQuery, 
+    setSearchQuery 
+  } = useAppStore()
+
+  // 记录模块切换历史
+  useEffect(() => {
+    const moduleNames: Record<string, string> = {
+      music: '音乐',
+      video: '视频',
+      novel: '小说',
+      manga: '漫画'
+    }
+    
+    addHistory(activeModule, `浏览${moduleNames[activeModule]}模块`).catch(() => {
+      // 静默失败，不影响用户体验
+    })
+  }, [activeModule])
 
   // 渲染当前模块
   const renderModule = () => {
