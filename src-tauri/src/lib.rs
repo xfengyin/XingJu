@@ -64,7 +64,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .manage(AppState::default())
         .setup(|app| {
-            let app_handle = app.handle();
+            let app_handle = app.handle().clone();
             
             // 异步初始化数据库
             tauri::async_runtime::spawn(async move {
