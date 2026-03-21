@@ -1,5 +1,4 @@
 import { useAppStore } from '../../store'
-import '../../styles/design-system.css'
 
 export default function Player() {
   const { currentTrack, isPlaying, setIsPlaying, progress, setProgress } = useAppStore()

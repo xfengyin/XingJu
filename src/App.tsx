@@ -5,7 +5,6 @@ import Player from './components/Layout/Player'
 import ErrorBoundary from './components/ErrorBoundary'
 import { useAppStore } from './store'
 import { addHistory } from './services/api'
-import './styles/design-system.css'
 
 // 路由级别代码分割 - 懒加载模块
 const MusicModule = lazy(() => import('./components/Music/MusicModule'))

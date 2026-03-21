@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import '../../styles/design-system.css'
 
 interface Manga {
   id: string

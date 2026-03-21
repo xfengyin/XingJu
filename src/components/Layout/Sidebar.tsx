@@ -1,5 +1,4 @@
 import React from 'react'
-import '../../styles/design-system.css'
 
 interface SidebarProps {
   activeModule: 'music' | 'video' | 'novel' | 'manga'
