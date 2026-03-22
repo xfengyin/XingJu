@@ -1,0 +1,573 @@
+/**
+ * 阅读器公共样式
+ * Reader Common Styles
+ * 
+ * 包含赛博朋克主题变量、公共阅读器样式和动画 keyframes
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   赛博朋克主题变量
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* 主色调 */
+  --cyber-primary: #00fff7;
+  --cyber-secondary: #ff00ff;
+  --cyber-accent: #7b00ff;
+  
+  /* 背景色 */
+  --cyber-bg-dark: #0a0a0f;
+  --cyber-bg-darker: #050508;
+  --cyber-bg-card: #1a1a2e;
+  --cyber-bg-overlay: rgba(10, 10, 15, 0.95);
+  
+  /* 文字色 */
+  --cyber-text-primary: #e0e0e0;
+  --cyber-text-secondary: #a0a0a0;
+  --cyber-text-muted: #666666;
+  
+  /* 状态色 */
+  --cyber-success: #00ff88;
+  --cyber-warning: #ffaa00;
+  --cyber-error: #ff3366;
+  
+  /* 边框和阴影 */
+  --cyber-border: rgba(0, 255, 247, 0.3);
+  --cyber-border-glow: rgba(0, 255, 247, 0.5);
+  --cyber-shadow: rgba(0, 255, 247, 0.2);
+  --cyber-shadow-strong: rgba(0, 255, 247, 0.4);
+  
+  /* 渐变 */
+  --cyber-gradient-primary: linear-gradient(135deg, #00fff7 0%, #ff00ff 100%);
+  --cyber-gradient-bg: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 100%);
+  --cyber-gradient-header: linear-gradient(180deg, rgba(10, 10, 15, 0.95) 0%, rgba(10, 10, 15, 0) 100%);
+  --cyber-gradient-footer: linear-gradient(0deg, rgba(10, 10, 15, 0.95) 0%, rgba(10, 10, 15, 0) 100%);
+  
+  /* 动画时间 */
+  --cyber-transition-fast: 150ms;
+  --cyber-transition-normal: 300ms;
+  --cyber-transition-slow: 500ms;
+  
+  /* 层级 */
+  --cyber-z-base: 1;
+  --cyber-z-controls: 50;
+  --cyber-z-modal: 100;
+  --cyber-z-overlay: 1000;
+  --cyber-z-toast: 1100;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   公共阅读器样式
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 阅读器容器 */
+.cyber-reader {
+  min-height: 100vh;
+  background-color: var(--cyber-bg-dark);
+  color: var(--cyber-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 
+               'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  transition: background-color var(--cyber-transition-normal) ease;
+}
+
+/* 赛博朋克扫描线效果 */
+.cyber-reader::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 247, 0.01) 2px,
+    rgba(0, 255, 247, 0.01) 4px
+  );
+  pointer-events: none;
+  z-index: var(--cyber-z-overlay);
+}
+
+/* 赛博朋克顶部发光边框 */
+.cyber-reader::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent,
+    var(--cyber-primary) 25%,
+    var(--cyber-secondary) 50%,
+    var(--cyber-primary) 75%,
+    transparent
+  );
+  z-index: calc(var(--cyber-z-overlay) + 1);
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   控制栏样式
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 顶部控制栏 */
+.cyber-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--cyber-z-controls);
+  background: var(--cyber-gradient-header);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--cyber-border);
+  transform: translateY(0);
+  transition: transform var(--cyber-transition-normal) ease;
+}
+
+.cyber-header.hidden {
+  transform: translateY(-100%);
+}
+
+/* 底部控制栏 */
+.cyber-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--cyber-z-controls);
+  background: var(--cyber-gradient-footer);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--cyber-border);
+  transform: translateY(0);
+  transition: transform var(--cyber-transition-normal) ease;
+}
+
+.cyber-footer.hidden {
+  transform: translateY(100%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   按钮样式
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 基础按钮 */
+.cyber-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(0, 255, 247, 0.1) 0%, rgba(123, 0, 255, 0.1) 100%);
+  border: 1px solid var(--cyber-border);
+  border-radius: 8px;
+  color: var(--cyber-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all var(--cyber-transition-fast) ease;
+}
+
+.cyber-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 247, 0.2) 0%, rgba(123, 0, 255, 0.2) 100%);
+  border-color: var(--cyber-primary);
+  box-shadow: 0 0 15px var(--cyber-shadow);
+}
+
+.cyber-btn:active {
+  transform: scale(0.95);
+}
+
+.cyber-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: rgba(128, 128, 128, 0.1);
+  border-color: rgba(128, 128, 128, 0.3);
+  color: var(--cyber-text-muted);
+}
+
+/* 按钮光效 */
+.cyber-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 40%,
+    rgba(0, 255, 247, 0.1) 50%,
+    transparent 60%
+  );
+  animation: shine 3s ease-in-out infinite;
+}
+
+/* 主要按钮 */
+.cyber-btn-primary {
+  background: linear-gradient(135deg, rgba(0, 255, 247, 0.3) 0%, rgba(123, 0, 255, 0.3) 100%);
+  border-color: var(--cyber-primary);
+}
+
+.cyber-btn-primary:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 247, 0.4) 0%, rgba(123, 0, 255, 0.4) 100%);
+  box-shadow: 0 0 20px var(--cyber-shadow-strong);
+}
+
+/* 危险按钮 */
+.cyber-btn-danger {
+  border-color: rgba(255, 51, 102, 0.5);
+  color: var(--cyber-error);
+}
+
+.cyber-btn-danger:hover {
+  background: rgba(255, 51, 102, 0.2);
+  border-color: var(--cyber-error);
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+}
+
+/* 图标按钮 */
+.cyber-btn-icon {
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   进度条样式
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cyber-progress {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cyber-progress-bar {
+  height: 100%;
+  background: var(--cyber-gradient-primary);
+  border-radius: 2px;
+  box-shadow: 0 0 10px var(--cyber-shadow);
+  transition: width var(--cyber-transition-normal) ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   加载动画
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cyber-spinner {
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--cyber-border);
+  border-top-color: var(--cyber-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.cyber-loading-text {
+  color: var(--cyber-primary);
+  font-size: 0.875rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   页码显示
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cyber-page-number {
+  padding: 0.25rem 0.75rem;
+  background: rgba(10, 10, 15, 0.8);
+  border: 1px solid var(--cyber-border);
+  border-radius: 4px;
+  color: var(--cyber-primary);
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  backdrop-filter: blur(4px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   模态框和面板
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cyber-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: var(--cyber-z-modal);
+  animation: fadeIn var(--cyber-transition-fast) ease-out;
+}
+
+.cyber-panel {
+  background: var(--cyber-gradient-bg);
+  border: 1px solid var(--cyber-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 
+    0 0 20px var(--cyber-shadow),
+    inset 0 0 20px rgba(0, 255, 247, 0.05);
+  animation: slideUp var(--cyber-transition-normal) ease-out;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   输入控件
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 滑块 */
+.cyber-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.cyber-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--cyber-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--cyber-shadow-strong);
+  transition: transform var(--cyber-transition-fast) ease;
+}
+
+.cyber-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px var(--cyber-shadow-strong);
+}
+
+.cyber-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--cyber-primary);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--cyber-shadow-strong);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   滚动条样式
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cyber-reader ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.cyber-reader ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.cyber-reader ::-webkit-scrollbar-thumb {
+  background: var(--cyber-gradient-primary);
+  border-radius: 3px;
+}
+
+.cyber-reader ::-webkit-scrollbar-thumb:hover {
+  background: var(--cyber-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   文字选择样式
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cyber-reader ::selection {
+  background: rgba(0, 255, 247, 0.3);
+  color: #ffffff;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   动画 Keyframes
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 闪光效果 */
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 扫描线效果 */
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* 边框发光 */
+@keyframes borderGlow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* 故障效果 */
+@keyframes glitch {
+  0%, 100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  5% {
+    clip-path: inset(10% 0 85% 0);
+    opacity: 0.8;
+  }
+  10% {
+    clip-path: inset(80% 0 5% 0);
+    opacity: 0.6;
+  }
+  15% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+/* 淡入 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 淡出 */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* 从下往上滑入 */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 从左滑入 */
+@keyframes slideInRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* 脉冲 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 旋转 */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 弹跳 */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* 闪烁 */
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* 霓虹闪烁 */
+@keyframes neonFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    text-shadow: 
+      0 0 4px var(--cyber-primary),
+      0 0 11px var(--cyber-primary),
+      0 0 19px var(--cyber-primary),
+      0 0 40px var(--cyber-primary);
+  }
+  20%, 24%, 55% {
+    text-shadow: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   响应式调整
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .cyber-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .cyber-panel {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   工具类
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 文字发光 */
+.cyber-text-glow {
+  text-shadow: 0 0 10px var(--cyber-shadow-strong);
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+.cyber-hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.cyber-hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 安全区域内边距 */
+.cyber-safe-area {
+  padding-bottom: env(safe-area-inset-bottom);
+}
