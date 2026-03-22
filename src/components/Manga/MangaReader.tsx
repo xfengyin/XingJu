@@ -157,7 +157,7 @@ const MangaImage: React.FC<MangaImageProps> = React.memo(({
 
     // 检查缓存
     if (imageCache.has(page.url)) {
-      setImageSrc(imageCache.get(page.url));
+      setImageSrc(imageCache.get(page.url) || null);
       setIsLoading(false);
       return;
     }
@@ -271,7 +271,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedPagesRef = useRef<Set<number>>(new Set());
 
   const currentChapter = chapters[currentChapterIndex];

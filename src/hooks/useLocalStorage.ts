@@ -165,7 +165,7 @@ export function useLocalStorageWithDebounce<T>(
 
   const [isSaving, setIsSaving] = useState(false);
   const pendingValueRef = useRef<T | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const debouncedSetValue: SetValue<T> = useCallback(
     (value) => {
