@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import '../../styles/design-system.css'
 
 interface SidebarProps {
   activeModule: 'music' | 'video' | 'novel' | 'manga'
@@ -12,9 +13,60 @@ const menuItems = [
   { id: 'manga', icon: '📖', label: '漫画', gradient: 'from-emerald-500 to-teal-500' },
 ] as const
 
-export default function Sidebar({ activeModule, onModuleChange }: SidebarProps) {
+/** 菜单图标组件 */
+function MenuIcon() {
   return (
-    <aside className="w-72 glass-panel m-4 rounded-3xl p-6 flex flex-col h-[calc(100vh-2rem)]">
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  )
+}
+
+/** 关闭图标组件 */
+function CloseIcon() {
+  return (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  )
+}
+
+export default function Sidebar({ activeModule, onModuleChange }: SidebarProps) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleModuleChange = (module: typeof activeModule) => {
+    onModuleChange(module)
+    setIsOpen(false) // 移动端选择后关闭抽屉
+  }
+
+  return (
+    <>
+      {/* 移动端菜单按钮 */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-3 glass-panel rounded-xl text-white hover:bg-white/10 transition-all"
+        aria-label="Toggle menu"
+      >
+        {isOpen ? <CloseIcon /> : <MenuIcon />}
+      </button>
+
+      {/* 移动端遮罩层 */}
+      {isOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* 侧边栏 - 桌面端固定显示，移动端抽屉模式 */}
+      <aside
+        className={`
+          w-72 glass-panel m-4 rounded-3xl p-6 flex flex-col h-[calc(100vh-2rem)]
+          fixed md:relative z-40 md:z-auto
+          transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
+      >
       {/* Logo 区域 */}
       <div className="mb-10 p-6 text-center relative">
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-purple-500/10 rounded-3xl blur-xl"></div>
@@ -32,7 +84,7 @@ export default function Sidebar({ activeModule, onModuleChange }: SidebarProps) 
         {menuItems.map((item, index) => (
           <button
             key={item.id}
-            onClick={() => onModuleChange(item.id)}
+            onClick={() => handleModuleChange(item.id)}
             className={`w-full group flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 relative overflow-hidden ${
               activeModule === item.id
                 ? 'bg-white/10 text-white shadow-lg'
@@ -96,5 +148,6 @@ export default function Sidebar({ activeModule, onModuleChange }: SidebarProps) 
         </div>
       </div>
     </aside>
+    </>
   )
 }
