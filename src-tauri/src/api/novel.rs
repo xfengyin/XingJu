@@ -110,6 +110,15 @@ async fn search_qidian(
     Ok(mock_novel_search(keyword, page, page_size))
 }
 
+/// 获取小说章节内容
+#[tauri::command]
+pub async fn get_novel_chapter(novel_id: String, chapter_id: String) -> Result<String, String> {
+    // TODO: 实现真实的小说章节内容获取
+    tracing::info!("获取小说章节: novel_id={}, chapter_id={}", novel_id, chapter_id);
+    
+    Ok(format!("这是 {} 的第 {} 章内容。", novel_id, chapter_id))
+}
+
 /// 纵横中文网 API 搜索
 async fn search_zongheng(
     client: &Client,

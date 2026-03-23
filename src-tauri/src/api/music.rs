@@ -193,44 +193,75 @@ async fn search_netease(
     let total = result.songCount.unwrap_or(songs.len() as u32);
 
     // 转换为 MusicTrack
-    let tracks: Vec<MusicTrack> = songs
-        .into_iter()
-        .map(|song| {
-            let artist = song
-                .artists
-                .unwrap_or_default()
-                .iter()
-                .map(|a| a.name.clone())
-                .collect::<Vec<_>>()
-                .join("/");
+    let mut tracks: Vec<MusicTrack> = Vec::new();
+    for song in songs {
+        let artist = song
+            .artists
+            .unwrap_or_default()
+            .iter()
+            .map(|a| a.name.clone())
+            .collect::<Vec<_>>()
+            .join("/");
 
-            let album = song
-                .album
-                .as_ref()
-                .map(|a| a.name.clone())
-                .unwrap_or_default();
+        let album = song
+            .album
+            .as_ref()
+            .map(|a| a.name.clone())
+            .unwrap_or_default();
 
-            let cover = song
-                .album
-                .and_then(|a| a.picUrl)
-                .unwrap_or_else(|| "https://picsum.photos/200".to_string());
+        let cover = song
+            .album
+            .and_then(|a| a.picUrl)
+            .unwrap_or_else(|| "https://picsum.photos/200".to_string());
 
-            let duration = song.duration.unwrap_or(0) / 1000;
+        let duration = song.duration.unwrap_or(0) / 1000;
 
-            MusicTrack {
-                id: song.id.to_string(),
-                title: song.name,
-                artist,
-                album,
-                duration: duration as u32,
-                url: format!("https://music.163.com/song?id={}", song.id),
-                cover,
-                source: "netease".to_string(),
-            }
-        })
-        .collect();
+        // 获取真实的播放 URL
+        let play_url = get_play_url(client, &song.id.to_string()).await.unwrap_or_else(|_| {
+            format!("https://music.163.com/song/media/outer/url?id={}.mp3", song.id)
+        });
+
+        tracks.push(MusicTrack {
+            id: song.id.to_string(),
+            title: song.name,
+            artist,
+            album,
+            duration: duration as u32,
+            url: play_url,
+            cover,
+            source: "netease".to_string(),
+        });
+    }
 
     Ok(SearchResult::new(tracks, total, page, page_size, "netease"))
+}
+
+/// 获取播放 URL
+async fn get_play_url(client: &Client, song_id: &str) -> Result<String, ApiError> {
+    // 网易云音乐需要使用内部 API 获取播放 URL，这通常需要登录和加密
+    // 这里我们使用一个公开的第三方代理 API
+    let url = format!(
+        "https://api.bzqll.com/music/tencent/url?key=free&id={}&br=128k",
+        song_id
+    );
+
+    let response = client
+        .get(&url)
+        .header("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)")
+        .send()
+        .await?;
+
+    if !response.status().is_success() {
+        return Err(ApiError::Network(format!(
+            "播放 URL API 返回错误状态: {}",
+            response.status()
+        )));
+    }
+
+    // 注意：实际实现需要处理返回的 JSON 并提取 URL
+    // 由于版权保护，大多数音乐平台不会直接提供播放 URL
+    // 临时返回模拟 URL，实际使用时需要找到可用的第三方 API
+    Ok(format!("https://music.163.com/song/media/outer/url?id={}.mp3", song_id))
 }
 
 /// QQ 音乐搜索

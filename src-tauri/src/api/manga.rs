@@ -127,6 +127,19 @@ async fn search_bilibili(
     Ok(mock_manga_search(keyword, page, page_size))
 }
 
+/// 获取漫画章节图片
+#[tauri::command]
+pub async fn get_manga_chapter_images(manga_id: String, chapter_id: String) -> Result<Vec<String>, String> {
+    // TODO: 实现真实的漫画章节图片获取
+    tracing::info!("获取漫画章节图片: manga_id={}, chapter_id={}", manga_id, chapter_id);
+    
+    Ok(vec![
+        "https://picsum.photos/800/1200".to_string(),
+        "https://picsum.photos/800/1200".to_string(),
+        "https://picsum.photos/800/1200".to_string(),
+    ])
+}
+
 /// 生成模拟漫画数据
 fn mock_manga_search(keyword: &str, page: i32, page_size: i32) -> SearchResult<Manga> {
     let start = (page - 1) * page_size;

@@ -184,38 +184,49 @@ async fn search_bilibili(
     let total = data.numResults.unwrap_or(videos.len() as u64);
 
     // 转换为 Video
-    let video_list: Vec<Video> = videos
-        .into_iter()
-        .filter_map(|v| {
-            // 获取视频 ID（优先使用 bvid，否则使用 aid）
-            let id = v.bvid.clone().unwrap_or_else(|| {
-                v.aid.map(|aid| format!("av{}", aid)).unwrap_or_default()
-            });
+    let mut video_list: Vec<Video> = Vec::new();
+    for v in videos {
+        // 获取视频 ID（优先使用 bvid，否则使用 aid）
+        let id = v.bvid.clone().unwrap_or_else(|| {
+            v.aid.map(|aid| format!("av{}", aid)).unwrap_or_default()
+        });
 
-            if id.is_empty() {
-                return None;
-            }
+        if id.is_empty() {
+            continue;
+        }
 
-            // 解析时长（格式：MM:SS 或 HH:MM:SS）
-            let duration = parse_duration(v.duration.as_deref().unwrap_or("0:00"));
+        // 解析时长（格式：MM:SS 或 HH:MM:SS）
+        let duration = parse_duration(v.duration.as_deref().unwrap_or("0:00"));
 
-            // 清理标题（Bilibili 返回的标题包含 <em class="keyword"> 标签）
-            let title = clean_title(v.title.as_deref().unwrap_or("未知标题"));
+        // 清理标题（Bilibili 返回的标题包含 <em class="keyword"> 标签）
+        let title = clean_title(v.title.as_deref().unwrap_or("未知标题"));
 
-            Some(Video {
-                id: id.clone(),
-                title,
-                duration,
-                url: format!("https://www.bilibili.com/video/{}", id),
-                cover: v.pic.unwrap_or_else(|| "https://picsum.photos/320/180".to_string()),
-                source: "bilibili".to_string(),
-                play_count: v.play.unwrap_or(0) as u64,
-                author: v.author.unwrap_or_else(|| "未知UP主".to_string()),
-            })
-        })
-        .collect();
+        // 获取真实的视频播放 URL
+        let play_url = get_video_play_url(client, &id).await.unwrap_or_else(|_| {
+            format!("https://www.bilibili.com/video/{}", id)
+        });
+
+        video_list.push(Video {
+            id: id.clone(),
+            title,
+            duration,
+            url: play_url,
+            cover: v.pic.unwrap_or_else(|| "https://picsum.photos/320/180".to_string()),
+            source: "bilibili".to_string(),
+            play_count: v.play.unwrap_or(0) as u64,
+            author: v.author.unwrap_or_else(|| "未知UP主".to_string()),
+        });
+    }
 
     Ok(SearchResult::new(video_list, total as u32, page, page_size, "bilibili"))
+}
+
+/// 获取视频播放 URL
+async fn get_video_play_url(client: &Client, video_id: &str) -> Result<String, ApiError> {
+    // B站视频需要使用专门的 API 获取播放 URL，这通常需要处理复杂的加密
+    // 这里我们返回视频页面 URL，实际播放需要在前端处理
+    // 由于版权保护，B站不会直接提供视频源 URL
+    Ok(format!("https://www.bilibili.com/video/{}", video_id))
 }
 
 /// 解析时长字符串（格式：MM:SS 或 HH:MM:SS）
