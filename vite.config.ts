@@ -8,7 +8,14 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     rollupOptions: {
-      external: ['@tauri-apps/api', '@tauri-apps/api/core', '@tauri-apps/api/http', '@tauri-apps/api/event'],
+      external: [
+        '@tauri-apps/api',
+        '@tauri-apps/api/core',
+        '@tauri-apps/api/http',
+        '@tauri-apps/api/event',
+        'zustand',
+        'zustand/react'
+      ],
     },
   },
 })
