@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export default defineConfig({
   plugins: [react()],
@@ -9,7 +13,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    // 代码分割优化
     rollupOptions: {
       output: {
         manualChunks: {
@@ -19,18 +22,15 @@ export default defineConfig({
         },
       },
     },
-    // 启用压缩
     minify: 'esbuild',
     sourcemap: false,
-    // 分块大小警告限制
     chunkSizeWarningLimit: 1000,
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
-  // 优化依赖解析
   optimizeDeps: {
     include: ['react', 'react-dom', 'zustand', 'framer-motion'],
   },
