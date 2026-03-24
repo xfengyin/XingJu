@@ -41,7 +41,7 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Build Web
         run: npm run build
       - name: Build Tauri application
@@ -77,7 +77,7 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Build Web
         run: npm run build
       - name: Build Tauri application
@@ -113,7 +113,7 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Build Web
         run: npm run build
       - name: Build Tauri application
