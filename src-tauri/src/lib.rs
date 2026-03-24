@@ -108,11 +108,11 @@ pub fn run() {
             api::get_history,
             api::add_history,
             api::clear_history,
-            // 搜索命令
-            api::search_music,
-            api::search_video,
-            api::search_novel,
-            api::search_manga,
+            // 搜索命令 - 使用子模块完整路径
+            api::music::search_music,
+            api::video::search_video,
+            api::novel::search_novel,
+            api::manga::search_manga,
             // 收藏命令
             api::add_favorite,
             api::get_favorites,
