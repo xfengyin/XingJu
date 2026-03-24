@@ -57,13 +57,13 @@ impl<T> SearchResult<T> {
 /// API 错误类型
 #[derive(Debug, thiserror::Error)]
 pub enum ApiError {
-    #[error("网络请求失败: {0}")]
+    #[error("网络请求失败：{0}")]
     Network(String),
 
-    #[error("数据解析失败: {0}")]
+    #[error("数据解析失败：{0}")]
     Parse(String),
 
-    #[error("不支持的数据源: {0}")]
+    #[error("不支持的数据源：{0}")]
     UnsupportedSource(String),
 
     #[error("请求超时")]
@@ -87,7 +87,7 @@ impl From<serde_json::Error> for ApiError {
 }
 
 // ============================================================================
-// 搜索命令 - 适配前端调用格式
+// 搜索命令 - 适配前端调用格式 (包装函数，调用子模块实现)
 // ============================================================================
 
 /// 搜索参数
@@ -120,53 +120,12 @@ impl<T: Serialize> ApiResponse<T> {
     }
 }
 
-/// 搜索音乐
-#[tauri::command]
-pub async fn search_music(params: SearchParams) -> ApiResponse<Vec<MusicTrack>> {
-    tracing::info!("Searching music: {}", params.query);
-    
-    let source = params.source.unwrap_or_else(|| "netease".to_string());
-    
-    match music::search_music(params.query.clone(), source, 1, params.limit as i32).await {
-        Ok(result) => ApiResponse::success(result.data),
-        Err(e) => ApiResponse::error(e),
-    }
-}
-
-/// 搜索视频
-#[tauri::command]
-pub async fn search_video(params: SearchParams) -> ApiResponse<Vec<Video>> {
-    tracing::info!("Searching video: {}", params.query);
-    
-    let source = params.source.unwrap_or_else(|| "bilibili".to_string());
-    
-    match video::search_video(params.query.clone(), source, 1, params.limit as i32).await {
-        Ok(result) => ApiResponse::success(result.data),
-        Err(e) => ApiResponse::error(e),
-    }
-}
-
-/// 搜索小说
-#[tauri::command]
-pub async fn search_novel(params: SearchParams) -> ApiResponse<Vec<Novel>> {
-    tracing::info!("Searching novel: {}", params.query);
-    
-    match novel::search_novel(params.query.clone(), "qidian".to_string(), 1, params.limit as i32).await {
-        Ok(result) => ApiResponse::success(result.data),
-        Err(e) => ApiResponse::error(e),
-    }
-}
-
-/// 搜索漫画
-#[tauri::command]
-pub async fn search_manga(params: SearchParams) -> ApiResponse<Vec<Manga>> {
-    tracing::info!("Searching manga: {}", params.query);
-    
-    match manga::search_manga(params.query.clone(), "manhua".to_string(), 1, params.limit as i32).await {
-        Ok(result) => ApiResponse::success(result.data),
-        Err(e) => ApiResponse::error(e),
-    }
-}
+// Re-export command functions from submodules to avoid duplicate definitions
+// The actual implementations are in novel.rs, manga.rs, music.rs, video.rs
+pub use novel::search_novel;
+pub use manga::search_manga;
+pub use music::search_music;
+pub use video::search_video;
 
 // ============================================================================
 // 历史记录命令
