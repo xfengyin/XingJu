@@ -1,0 +1,28 @@
+/* ========================================
+   XingJu v2.1 - 样式入口文件
+   ========================================
+   
+   模块化CSS架构：
+   1. variables.css   - CSS变量和全局重置
+   2. backgrounds.css - 背景和粒子效果
+   3. components.css  - UI组件样式
+   4. animations.css  - 动画和过渡效果
+   5. responsive.css  - 响应式设计
+   
+   优点：
+   - 模块化维护，易于定位
+   - 按需加载，减少冗余
+   - 代码复用性高
+   ======================================== */
+
+@import './variables.css';
+@import './backgrounds.css';
+@import './components.css';
+@import './animations.css';
+@import './responsive.css';
+
+/* 
+  废弃文件说明（已迁移到新模块）：
+  - design-system.css -> 已拆分到各模块
+  - cyberpunk.css -> 已整合到各模块
+*/
