@@ -1,4 +1,4 @@
-# XingJu 星聚 v2.0
+# XingJu 星聚 v2.1.0
 
 <div align="center">
 

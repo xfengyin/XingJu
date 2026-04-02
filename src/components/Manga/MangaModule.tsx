@@ -91,7 +91,16 @@ export default function MangaModule({ query }: Props) {
               >
                 {/* 封面 */}
                 <div className="aspect-[3/4] bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center text-6xl relative overflow-hidden">
-                  {manga.cover || '📚'}
+                  {manga.cover ? (
+                    <LazyImage
+                      src={manga.cover}
+                      alt={manga.title}
+                      className="w-full h-full"
+                      placeholder="📚"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center w-full h-full">📚</div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 

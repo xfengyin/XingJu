@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { searchVideo, formatDuration, getSourceLabel, Video } from '../../services/api'
+import { LazyImage } from '../common/LazyImage'
 
 interface Props {
   query: string
@@ -96,10 +97,11 @@ export default function VideoModule({ query }: Props) {
               >
                 <div className="aspect-video bg-gradient-to-br from-purple-500/20 to-pink-500/20 relative overflow-hidden">
                   {video.cover ? (
-                    <img 
+                    <LazyImage 
                       src={video.cover} 
                       alt={video.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full group-hover:scale-110 transition-transform duration-500"
+                      placeholder="🎬"
                     />
                   ) : (
                     <div className="flex items-center justify-center text-6xl">🎬</div>

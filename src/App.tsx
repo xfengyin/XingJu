@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect, useMemo } from 'react'
 import Sidebar from './components/Layout/Sidebar'
 import Header from './components/Layout/Header'
 import Player from './components/Layout/Player'
@@ -85,6 +85,37 @@ function App() {
         <div className="flex h-screen p-4 gap-4">
           {/* 侧边栏 */}
           <Sidebar 
+            activeModule={activeModule}
+            onModuleChange={setActiveModule}
+          />
+          
+          {/* 主内容区 */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* 头部 */}
+            <Header 
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+            
+            {/* 内容区域 - 带 Suspense 边界 */}
+            <main className="flex-1 overflow-y-auto p-6 pt-2">
+              <ErrorBoundary>
+                <Suspense fallback={<ModuleSkeleton />}>
+                  {renderModule()}
+                </Suspense>
+              </ErrorBoundary>
+            </main>
+          </div>
+        </div>
+        
+        {/* 底部播放器 */}
+        <Player />
+      </div>
+    </ErrorBoundary>
+  )
+}
+
+export default Appr 
             activeModule={activeModule}
             onModuleChange={setActiveModule}
           />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { searchMusic, formatDuration, getSourceLabel, MusicTrack } from '../../services/api'
+import { LazyImage } from '../common/LazyImage'
 
 interface Props {
   query: string
@@ -180,6 +181,14 @@ export default function MusicModule({ query }: Props) {
                     </div>
                   </button>
                 </div>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+} </div>
               ))
             )}
           </div>
