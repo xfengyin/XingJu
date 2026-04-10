@@ -31,32 +31,33 @@ export default function NovelModule({ query }: Props) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* 标题 */}
       <div>
-        <h1 className="text-4xl font-black gradient-text mb-2">📖 小说聚合</h1>
-        <p className="text-text-secondary">探索精彩小说世界</p>
+        <h1 className="text-heading-2 font-normal text-[#1a1a1a] tracking-tight" style={{ fontFeatureSettings: "'cv01', 'ss03'" }}>
+          小说聚合
+        </h1>
+        <p className="text-small text-[#62666d] mt-1">探索精彩小说世界</p>
       </div>
 
       {/* 错误提示 */}
       {error && (
-        <div className="glass-panel p-4 rounded-xl text-red-400 bg-red-500/10">
+        <div className="p-3 rounded-comfortable text-sm bg-red-50 text-red-600 border border-red-200">
           {error}
         </div>
       )}
 
       {/* 分类 */}
       <section>
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <span className="w-1 h-6 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full"></span>
+        <h2 className="text-caption-lg font-medium text-[#62666d] uppercase tracking-wider mb-3" style={{ fontFeatureSettings: "'cv01', 'ss03'" }}>
           热门分类
         </h2>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2">
           {['玄幻', '仙侠', '都市', '历史', '科幻', '游戏', '军事', '悬疑'].map((cat, i) => (
             <button
               key={i}
               onClick={() => performSearch(cat)}
-              className="glass-panel px-5 py-3 rounded-xl hover:bg-white/10 transition-all font-medium text-text-secondary hover:text-cyan-400"
+              className="btn-subtle text-xs"
             >
               {['🐉', '⚔️', '🏙️', '📜', '🚀', '🎮', '🎖️', '🔍'][i]} {cat}
             </button>
@@ -66,56 +67,45 @@ export default function NovelModule({ query }: Props) {
 
       {/* 小说列表 */}
       <section>
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <span className="w-1 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></span>
+        <h2 className="text-caption-lg font-medium text-[#62666d] uppercase tracking-wider mb-3" style={{ fontFeatureSettings: "'cv01', 'ss03'" }}>
           {query ? `搜索结果：${query}` : '推荐小说'}
         </h2>
 
         {isLoading ? (
-          <div className="text-center py-20">
-            <div className="inline-block w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
-            <p className="mt-4 text-text-secondary">正在搜索...</p>
+          <div className="text-center py-16">
+            <div className="inline-block w-6 h-6 border-2 border-[#e5e5e5] border-t-[#5e6ad2] rounded-full animate-spin"></div>
+            <p className="mt-3 text-small text-[#8a8f98]">正在搜索...</p>
           </div>
         ) : novels.length === 0 ? (
-          <div className="text-center py-20 text-text-tertiary">
-            <p className="text-5xl mb-4">📖</p>
-            <p>输入关键词搜索小说</p>
+          <div className="text-center py-16 text-[#8a8f98]">
+            <p className="text-3xl mb-3">📖</p>
+            <p className="text-sm">输入关键词搜索小说</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {novels.map((novel, i) => (
-              <div
-                key={novel.id}
-                className="group cyber-card p-4 flex gap-4 cursor-pointer"
-                style={{ animationDelay: `${i * 50}ms` }}
-              >
+          <div className="panel">
+            {novels.map((novel) => (
+              <div key={novel.id} className="list-row gap-4 p-4">
                 {/* 封面 */}
-                <div className="w-24 h-32 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center text-4xl shrink-0 overflow-hidden">
+                <div className="w-12 h-16 rounded-comfortable bg-[#f5f6f7] flex items-center justify-center text-2xl shrink-0 overflow-hidden">
                   {novel.cover || '📖'}
                 </div>
-                
+
                 {/* 信息 */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-white truncate group-hover:text-cyan-400 transition-colors">
+                  <h3 className="text-sm font-medium text-[#1a1a1a] truncate hover:text-[#5e6ad2] transition-colors" style={{ fontFeatureSettings: "'cv01', 'ss03'" }}>
                     {novel.title}
                   </h3>
-                  <p className="text-sm text-text-tertiary mt-1">{novel.author}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      novel.status === '已完结' 
-                        ? 'bg-green-500/20 text-green-400' 
-                        : 'bg-blue-500/20 text-blue-400'
+                  <p className="text-xs text-[#8a8f98] mt-0.5">{novel.author}</p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full ${
+                      novel.status === '已完结' ? 'badge-success' : 'badge'
                     }`}>
                       {novel.status}
                     </span>
-                    <span className="text-xs text-text-tertiary">
-                      {novel.chapters}章
-                    </span>
-                  </div>
-                  <div className="mt-2 text-xs text-text-tertiary">
-                    来源: {novel.source}
+                    <span className="text-[11px] text-[#8a8f98]">{novel.chapters}章</span>
                   </div>
                 </div>
+                <div className="text-xs text-[#8a8f98]">{novel.source}</div>
               </div>
             ))}
           </div>

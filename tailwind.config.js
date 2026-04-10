@@ -7,87 +7,99 @@ export default {
   theme: {
     extend: {
       colors: {
-        // 霓虹色
-        neon: {
-          blue: '#00f3ff',
-          pink: '#ff00ff',
-          purple: '#bf00ff',
-          yellow: '#ffe600',
-          cyan: '#00f3ff',
-          magenta: '#ff00ff',
+        // Linear 设计系统 - 主色
+        linear: {
+          bg: '#fafafa',
+          surface: '#f5f6f7',
+          elevated: '#f0f0f2',
+          border: '#e5e5e5',
+          'border-subtle': '#ededed',
         },
-        // 赛博背景色
-        cyber: {
-          dark: '#0a0a0f',
-          panel: '#12121a',
-          glass: 'rgba(18, 18, 26, 0.8)',
-          gray: {
-            400: '#a0a0b0',
-            500: '#6b6b8a',
-            700: '#1a1a2e',
-          }
+        // Linear 品牌色
+        brand: {
+          DEFAULT: '#5e6ad2',
+          accent: '#7170ff',
+          hover: '#828fff',
+          muted: '#7a7fad',
         },
-        // 设计系统颜色
-        void: {
-          black: '#050508',
-        },
-        deep: {
-          space: '#0a0a12',
-        },
-        nebula: {
-          dark: '#12121f',
-        },
-        cosmic: {
-          gray: '#1a1a2e',
-        },
-        starlight: '#252540',
-        // 文本颜色
+        // Linear 文字色
         text: {
-          primary: '#ffffff',
-          secondary: '#b8b8d0',
-          tertiary: '#6b6b8a',
-          accent: '#00f3ff',
+          primary: '#1a1a1a',
+          secondary: '#62666d',
+          tertiary: '#8a8f98',
+          quaternary: '#b0b4ba',
+          accent: '#5e6ad2',
         },
-        // 强调色
-        electric: {
-          blue: '#2d6cdf',
-        },
-        sunset: {
-          orange: '#ff6b35',
+        // 状态色
+        status: {
+          success: '#27a644',
+          emerald: '#10b981',
+          warning: '#f59e0b',
+          error: '#ef4444',
         },
       },
-      animation: {
-        'pulse-neon': 'pulse-neon 2s ease-in-out infinite',
-        'glitch': 'glitch 0.3s ease-in-out',
-        'scanline': 'scanline 8s linear infinite',
-        'fade-in-up': 'fade-in-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-        'fade-in-scale': 'fade-in-scale 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-        'shimmer': 'shimmer 2s infinite',
-        'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
-        'rotate-slow': 'rotate-slow 20s linear infinite',
-        'float-particle': 'float-particle 20s infinite linear',
+      fontFamily: {
+        sans: [
+          'Inter',
+          'SF Pro Display',
+          '-apple-system',
+          'system-ui',
+          'Segoe UI',
+          'Roboto',
+          'Oxygen',
+          'Ubuntu',
+          'Cantarell',
+          'Helvetica Neue',
+          'sans-serif',
+        ],
+        mono: [
+          'Berkeley Mono',
+          'ui-monospace',
+          'SF Mono',
+          'Menlo',
+          'monospace',
+        ],
       },
-      backgroundImage: {
-        'cyber-grid': 'linear-gradient(rgba(0,243,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,243,255,0.1) 1px, transparent 1px)',
-        'neon-glow': 'radial-gradient(circle, rgba(0,243,255,0.3) 0%, transparent 70%)',
+      fontWeight: {
+        '510': '510',
+        '590': '590',
       },
-      boxShadow: {
-        'neon': '0 0 10px #00f3ff, 0 0 20px #00f3ff',
-        'neon-lg': '0 0 20px #00f3ff, 0 0 40px #00f3ff',
-        'cyan-500/30': '0 0 30px rgba(0, 243, 255, 0.3)',
-        'purple-500/30': '0 0 30px rgba(191, 0, 255, 0.3)',
+      fontSize: {
+        'display-xl': ['4.50rem', { lineHeight: '1.00', letterSpacing: '-1.584px' }],
+        'display-lg': ['4.00rem', { lineHeight: '1.00', letterSpacing: '-1.408px' }],
+        'display': ['3.00rem', { lineHeight: '1.00', letterSpacing: '-1.056px' }],
+        'heading-1': ['2.00rem', { lineHeight: '1.13', letterSpacing: '-0.704px' }],
+        'heading-2': ['1.50rem', { lineHeight: '1.33', letterSpacing: '-0.288px' }],
+        'heading-3': ['1.25rem', { lineHeight: '1.33', letterSpacing: '-0.24px' }],
+        'body-lg': ['1.13rem', { lineHeight: '1.60', letterSpacing: '-0.165px' }],
+        'body': ['1.00rem', { lineHeight: '1.50' }],
+        'small': ['0.94rem', { lineHeight: '1.60', letterSpacing: '-0.165px' }],
+        'caption-lg': ['0.88rem', { lineHeight: '1.50', letterSpacing: '-0.182px' }],
+        'caption': ['0.81rem', { lineHeight: '1.50', letterSpacing: '-0.13px' }],
+        'label': ['0.75rem', { lineHeight: '1.40' }],
+        'micro': ['0.69rem', { lineHeight: '1.40' }],
       },
       borderRadius: {
-        '4xl': '32px',
-        '5xl': '40px',
+        'micro': '2px',
+        'standard': '4px',
+        'comfortable': '6px',
+        'card': '8px',
+        'panel': '12px',
+      },
+      boxShadow: {
+        'linear-subtle': '0 1px 2px rgba(0,0,0,0.04)',
+        'linear-card': '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+        'linear-elevated': '0 4px 12px rgba(0,0,0,0.08)',
+        'linear-focus': '0 0 0 2px rgba(94,106,210,0.3)',
       },
       spacing: {
-        '18': '4.5rem',
-        '88': '22rem',
-        '128': '32rem',
+        '4.5': '1.125rem',
+        '13': '3.25rem',
+        '15': '3.75rem',
       },
-      backdropBlur: {
-        'xs': '2px',
+      transitionDuration: {
+        '150': '150ms',
+        '200': '200ms',
       },
     },
   },

@@ -22,11 +22,11 @@ interface AppState {
   // 当前模块
   activeModule: 'music' | 'video' | 'novel' | 'manga'
   setActiveModule: (module: 'music' | 'video' | 'novel' | 'manga') => void
-  
+
   // 搜索
   searchQuery: string
   setSearchQuery: (query: string) => void
-  
+
   // 播放状态
   currentTrack: Track | null
   isPlaying: boolean
@@ -36,17 +36,17 @@ interface AppState {
   setIsPlaying: (playing: boolean) => void
   setProgress: (progress: number) => void
   setVolume: (volume: number) => void
-  
+
   // 主题
-  theme: 'cyberpunk' | 'dark' | 'light'
-  setTheme: (theme: 'cyberpunk' | 'dark' | 'light') => void
-  
+  theme: 'linear' | 'dark' | 'light'
+  setTheme: (theme: 'linear' | 'dark' | 'light') => void
+
   // 设置
   settings: AppSettings
   updateSettings: (settings: Partial<AppSettings>) => void
 }
 
-// 持久化配置 - 只保存关键数据，减少存储体积
+// 持久化配置
 const persistConfig = {
   name: 'xingju-storage',
   storage: createJSONStorage(() => localStorage),
@@ -63,11 +63,11 @@ export const useAppStore = create<AppState>()(
       // 当前模块
       activeModule: 'music',
       setActiveModule: (module) => set({ activeModule: module }),
-      
+
       // 搜索
       searchQuery: '',
       setSearchQuery: (query) => set({ searchQuery: query }),
-      
+
       // 播放状态
       currentTrack: null,
       isPlaying: false,
@@ -77,11 +77,11 @@ export const useAppStore = create<AppState>()(
       setIsPlaying: (playing) => set({ isPlaying: playing }),
       setProgress: (progress) => set({ progress }),
       setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
-      
-      // 主题
-      theme: 'cyberpunk',
+
+      // 主题 (默认 Linear 风格)
+      theme: 'linear',
       setTheme: (theme) => set({ theme }),
-      
+
       // 设置
       settings: {
         autoPlay: true,

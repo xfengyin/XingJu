@@ -1,89 +1,21 @@
 /* ========================================
-   XingJu v2.1 - 背景效果模块
+   XingJu v2.1 - 背景效果 (Linear 极简风格)
    ======================================== */
 
-/* ─── 动态背景 ─── */
-.cyber-background {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  background: radial-gradient(ellipse at 50% 0%, rgba(45, 108, 223, 0.15) 0%, transparent 70%),
-              radial-gradient(ellipse at 100% 50%, rgba(191, 0, 255, 0.1) 0%, transparent 50%),
-              radial-gradient(ellipse at 0% 100%, rgba(0, 243, 255, 0.08) 0%, transparent 50%),
-              var(--void-black);
-}
-
-/* ─── 网格叠加层 ─── */
-.grid-overlay {
+/* ─── 主背景 ─── */
+.linear-background {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: 
-    linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  background: var(--bg-primary);
 }
 
-/* ─── 赛博朋克网格背景 ─── */
-.cyber-grid {
+/* ─── 内容区微妙纹理 ─── */
+.surface-pattern {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: 
-    linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-/* ─── 扫描线效果 ─── */
-.scanlines {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.1),
-    rgba(0, 0, 0, 0.1) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-}
-
-/* ─── 粒子效果容器 ─── */
-.particle-field {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.particle {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background: var(--neon-cyan);
-  border-radius: 50%;
-  opacity: 0.3;
-  animation: float-particle 20s infinite linear;
-}
-
-@keyframes float-particle {
-  0%, 100% {
-    transform: translateY(100vh) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.5;
-  }
-  90% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(-100vh) rotate(720deg);
-    opacity: 0;
-  }
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(94, 106, 210, 0.03) 0%, transparent 60%),
+    var(--bg-primary);
 }

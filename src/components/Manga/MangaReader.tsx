@@ -61,68 +61,53 @@ class ImageCache {
 const imageCache = new ImageCache();
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// 赛博朋克样式
+// Linear 设计系统样式
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const cyberpunkStyles = {
+const linearStyles = {
   container: `
-    relative w-full h-full bg-gray-950 overflow-hidden
-    font-mono text-cyan-400
+    relative w-full h-full bg-[#fafafa] overflow-hidden
+    font-sans text-[#1a1a1a]
   `,
   header: `
     fixed top-0 left-0 right-0 z-50
-    bg-gradient-to-b from-gray-950 via-gray-950/95 to-transparent
-    backdrop-blur-sm border-b border-cyan-500/20
+    bg-[#fafafa]/95
+    backdrop-blur-sm border-b border-[#ededed]
   `,
   controls: `
     fixed bottom-0 left-0 right-0 z-50
-    bg-gradient-to-t from-gray-950 via-gray-950/95 to-transparent
-    backdrop-blur-sm border-t border-cyan-500/20
+    bg-[#fafafa]/95
+    backdrop-blur-sm border-t border-[#ededed]
   `,
   button: `
-    relative px-4 py-2 
-    bg-gradient-to-r from-cyan-500/10 to-purple-500/10
-    border border-cyan-500/50
-    text-cyan-400 text-sm font-medium
-    hover:from-cyan-500/20 hover:to-purple-500/20
-    hover:border-cyan-400 hover:text-cyan-300
-    hover:shadow-[0_0_15px_rgba(0,255,255,0.3)]
-    active:scale-95
-    transition-all duration-200
-    before:absolute before:inset-0 
-    before:bg-[linear-gradient(45deg,transparent_40%,rgba(0,255,255,0.1)_50%,transparent_60%)]
-    before:animate-[shine_3s_ease-in-out_infinite]
-    overflow-hidden
+    px-4 py-2 
+    bg-white border border-[#e5e5e5]
+    text-[#1a1a1a] text-[13px] font-medium
+    hover:bg-[#f5f6f7] hover:border-[#d0d0d2]
+    active:scale-[0.98]
+    transition-all duration-150
+    rounded-[6px]
   `,
   buttonDisabled: `
     px-4 py-2 
-    bg-gray-800/50 border border-gray-700
-    text-gray-600 text-sm font-medium
+    bg-[#f5f6f7] border border-[#e5e5e5]
+    text-[#b0b4ba] text-[13px] font-medium
     cursor-not-allowed
-    transition-all duration-200
+    transition-all duration-150
+    rounded-[6px]
   `,
   progressBar: `
-    h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500
-    shadow-[0_0_10px_rgba(0,255,255,0.5)]
+    h-[2px] bg-[#5e6ad2]
   `,
   pageNumber: `
     px-3 py-1 
-    bg-gray-900/80 border border-cyan-500/30
-    text-cyan-400 text-sm font-mono
-    backdrop-blur-sm
+    bg-white border border-[#e5e5e5]
+    text-[#62666d] text-[13px] font-mono
+    rounded-[4px]
   `,
   loadingSpinner: `
-    w-12 h-12 border-2 border-cyan-500/30 border-t-cyan-400
+    w-8 h-8 border-2 border-[#e5e5e5] border-t-[#5e6ad2]
     rounded-full animate-spin
-  `,
-  glitchText: `
-    relative inline-block
-    before:content-attr(data-text)
-    before:absolute before:left-0.5 before:text-purple-500
-    before:animate-[glitch_2s_infinite]
-    after:content-attr(data-text)
-    after:absolute after:-left-0.5 after:text-cyan-500
-    after:animate-[glitch_2s_infinite_reverse]
   `,
 };
 
@@ -191,27 +176,23 @@ const MangaImage: React.FC<MangaImageProps> = React.memo(({
     >
       {/* 加载动画 */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-950">
-          <div className="flex flex-col items-center gap-4">
-            <div className={cyberpunkStyles.loadingSpinner} />
-            <span className="text-cyan-500 text-sm animate-pulse">
-              LOADING_{String(index + 1).padStart(3, '0')}
+        <div className="absolute inset-0 flex items-center justify-center bg-[#fafafa]">
+          <div className="flex flex-col items-center gap-3">
+            <div className={linearStyles.loadingSpinner} />
+            <span className="text-[#8a8f98] text-xs">
+              {String(index + 1).padStart(3, '0')}
             </span>
-            {/* 扫描线效果 */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(0,255,255,0.03)_50%,transparent_100%)] animate-[scan_2s_linear_infinite]" />
-            </div>
           </div>
         </div>
       )}
 
       {/* 错误状态 */}
       {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-950">
-          <div className="flex flex-col items-center gap-2 text-red-400">
-            <span className="text-4xl">⚠</span>
-            <span className="text-sm">IMAGE_LOAD_FAILED</span>
-            <span className="text-xs text-gray-500">{page.url}</span>
+        <div className="absolute inset-0 flex items-center justify-center bg-[#fafafa]">
+          <div className="flex flex-col items-center gap-2 text-[#ef4444]">
+            <span className="text-3xl">⚠</span>
+            <span className="text-sm">加载失败</span>
+            <span className="text-xs text-[#8a8f98]">{page.url}</span>
           </div>
         </div>
       )}
@@ -235,7 +216,7 @@ const MangaImage: React.FC<MangaImageProps> = React.memo(({
       {/* 页码标记 */}
       {!isLoading && !hasError && (
         <div className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
-          <span className={cyberpunkStyles.pageNumber}>
+          <span className={linearStyles.pageNumber}>
             {String(index + 1).padStart(3, '0')}
           </span>
         </div>
@@ -504,10 +485,10 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
 
   if (!currentChapter) {
     return (
-      <div className={cyberpunkStyles.container}>
+      <div className={linearStyles.container}>
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
-            <span className="text-red-400 text-lg">CHAPTER_NOT_FOUND</span>
+            <span className="text-[#ef4444] text-sm">未找到章节</span>
           </div>
         </div>
       </div>
@@ -518,7 +499,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
     <div 
       ref={containerRef}
       className={`
-        ${cyberpunkStyles.container}
+        ${linearStyles.container}
         ${isFullscreen ? 'fixed inset-0 z-50' : ''}
       `}
       onMouseMove={showControlsTemporarily}
@@ -530,7 +511,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
           ════════════════════════════════════════════════════════════════════════ */}
       <header 
         className={`
-          ${cyberpunkStyles.header}
+          ${linearStyles.header}
           transform transition-transform duration-300
           ${showControls ? 'translate-y-0' : '-translate-y-full'}
         `}
@@ -540,20 +521,20 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className={cyberpunkStyles.button}
+              className={linearStyles.button}
               aria-label="返回"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex flex-col">
               <span 
-                className="text-lg font-bold text-cyan-400 tracking-wider"
-                style={{ textShadow: '0 0 10px rgba(0, 255, 255, 0.5)' }}
+                className="text-base font-medium text-[#1a1a1a] tracking-tight"
+                style={{ fontFeatureSettings: "'cv01', 'ss03'" }}
               >
                 {currentChapter.title}
               </span>
-              <span className="text-xs text-gray-500">
-                CHAPTER_{String(currentChapterIndex + 1).padStart(2, '0')}
+              <span className="text-xs text-[#8a8f98]">
+                第{currentChapterIndex + 1}话
               </span>
             </div>
           </div>
@@ -563,7 +544,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
             {/* 阅读模式切换 */}
             <button
               onClick={() => setReadingMode(prev => prev === 'scroll' ? 'page' : 'scroll')}
-              className={cyberpunkStyles.button}
+              className={linearStyles.button}
               title={readingMode === 'scroll' ? '切换到翻页模式' : '切换到滚动模式'}
             >
               {readingMode === 'scroll' ? (
@@ -576,7 +557,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
             {/* 全屏 */}
             <button
               onClick={toggleFullscreen}
-              className={cyberpunkStyles.button}
+              className={linearStyles.button}
               title={isFullscreen ? '退出全屏' : '全屏'}
             >
               {isFullscreen ? (
@@ -589,9 +570,9 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
         </div>
 
         {/* 进度条 */}
-        <div className="h-1 bg-gray-900">
+        <div className="h-1 bg-[#fafafa]">
           <div 
-            className={cyberpunkStyles.progressBar}
+            className={linearStyles.progressBar}
             style={{ width: `${((currentPageIndex + 1) / totalPages) * 100}%` }}
           />
         </div>
@@ -660,7 +641,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
           ════════════════════════════════════════════════════════════════════════ */}
       <footer 
         className={`
-          ${cyberpunkStyles.controls}
+          ${linearStyles.controls}
           transform transition-transform duration-300
           ${showControls ? 'translate-y-0' : 'translate-y-full'}
         `}
@@ -675,7 +656,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
               }
             }}
             disabled={currentChapterIndex === 0}
-            className={currentChapterIndex === 0 ? cyberpunkStyles.buttonDisabled : cyberpunkStyles.button}
+            className={currentChapterIndex === 0 ? linearStyles.buttonDisabled : linearStyles.button}
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
             上一话
@@ -685,18 +666,18 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
           <button
             onClick={prevPage}
             disabled={currentPageIndex === 0 && currentChapterIndex === 0}
-            className={currentPageIndex === 0 && currentChapterIndex === 0 ? cyberpunkStyles.buttonDisabled : cyberpunkStyles.button}
+            className={currentPageIndex === 0 && currentChapterIndex === 0 ? linearStyles.buttonDisabled : linearStyles.button}
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
 
           {/* 页码显示 */}
           <div className="flex items-center gap-2">
-            <span className={cyberpunkStyles.pageNumber}>
+            <span className={linearStyles.pageNumber}>
               {String(currentPageIndex + 1).padStart(3, '0')}
             </span>
             <span className="text-gray-500">/</span>
-            <span className={cyberpunkStyles.pageNumber}>
+            <span className={linearStyles.pageNumber}>
               {String(totalPages).padStart(3, '0')}
             </span>
           </div>
@@ -705,7 +686,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
           <button
             onClick={nextPage}
             disabled={currentPageIndex === totalPages - 1 && currentChapterIndex === chapters.length - 1}
-            className={currentPageIndex === totalPages - 1 && currentChapterIndex === chapters.length - 1 ? cyberpunkStyles.buttonDisabled : cyberpunkStyles.button}
+            className={currentPageIndex === totalPages - 1 && currentChapterIndex === chapters.length - 1 ? linearStyles.buttonDisabled : linearStyles.button}
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -719,7 +700,7 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
               }
             }}
             disabled={currentChapterIndex === chapters.length - 1}
-            className={currentChapterIndex === chapters.length - 1 ? cyberpunkStyles.buttonDisabled : cyberpunkStyles.button}
+            className={currentChapterIndex === chapters.length - 1 ? linearStyles.buttonDisabled : linearStyles.button}
           >
             下一话
             <ChevronRight className="w-4 h-4 ml-1" />
@@ -734,15 +715,15 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
             max={totalPages - 1}
             value={currentPageIndex}
             onChange={(e) => goToPage(parseInt(e.target.value))}
-            className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer
+            className="w-full h-2 bg-[#ededed] rounded-lg appearance-none cursor-pointer
                        [&::-webkit-slider-thumb]:appearance-none
                        [&::-webkit-slider-thumb]:w-4
                        [&::-webkit-slider-thumb]:h-4
-                       [&::-webkit-slider-thumb]:bg-cyan-400
+                       [&::-webkit-slider-thumb]:bg-[#5e6ad2]
                        [&::-webkit-slider-thumb]:rounded-full
-                       [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(0,255,255,0.5)]
+                       [&::-webkit-slider-thumb]:
                        [&::-webkit-slider-thumb]:cursor-pointer
-                       [&::-webkit-slider-thumb]:hover:bg-cyan-300"
+                       [&::-webkit-slider-thumb]:hover:bg-[#828fff]"
           />
         </div>
       </footer>
@@ -754,18 +735,6 @@ export const MangaReader: React.FC<MangaReaderProps> = ({
         @keyframes shine {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
-        }
-        
-        @keyframes scan {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
-        }
-        
-        @keyframes glitch {
-          0%, 100% { clip-path: inset(0 0 0 0); opacity: 1; }
-          5% { clip-path: inset(10% 0 85% 0); opacity: 0.8; }
-          10% { clip-path: inset(80% 0 5% 0); opacity: 0.6; }
-          15% { clip-path: inset(0 0 0 0); opacity: 1; }
         }
       `}</style>
     </div>

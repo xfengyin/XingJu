@@ -1,82 +1,32 @@
 /* ========================================
-   XingJu v2.1 - 响应式设计模块
+   XingJu v2.1 - 响应式设计 (Linear 风格)
    ======================================== */
 
 /* ─── 平板设备 (768px以下) ─── */
 @media (max-width: 768px) {
   :root {
-    --space-lg: 16px;
-    --space-xl: 24px;
-    --space-2xl: 32px;
-  }
-  
-  .cyber-button {
-    padding: 12px 20px;
-    font-size: 13px;
-  }
-  
-  .cyber-card {
-    padding: var(--space-md);
-  }
-  
-  .glass-panel {
-    padding: var(--space-md);
+    --space-4: 12px;
+    --space-6: 16px;
+    --space-8: 24px;
   }
 }
 
 /* ─── 手机设备 (480px以下) ─── */
 @media (max-width: 480px) {
   :root {
-    --space-md: 12px;
-    --space-lg: 16px;
-    --radius-lg: 16px;
-    --radius-xl: 24px;
+    --space-3: 8px;
+    --space-4: 12px;
   }
   
   html {
-    font-size: 14px;
-  }
-  
-  .cyber-button {
-    padding: 10px 16px;
-    font-size: 12px;
-  }
-  
-  .cyber-input {
-    padding: 12px 16px;
-    font-size: 14px;
+    font-size: 15px;
   }
 }
 
 /* ─── 大屏设备 (1440px以上) ─── */
 @media (min-width: 1440px) {
   :root {
-    --space-lg: 32px;
-    --space-xl: 40px;
-    --space-2xl: 56px;
-  }
-  
-  html {
-    font-size: 18px;
-  }
-}
-
-/* ─── 暗黑模式支持 ─── */
-@media (prefers-color-scheme: dark) {
-  /* 默认已经是暗黑模式，这里可以添加额外的优化 */
-}
-
-/* ─── 减少动画偏好 ─── */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  
-  .particle-field {
-    display: none;
+    --space-8: 40px;
+    --space-10: 48px;
   }
 }
